@@ -14,22 +14,22 @@ var CurrentTable string
 
 // GetCommandRegex returns the regex used to parse NoQLi commands
 func GetCommandRegex() *regexp.Regexp {
-	return regexp.MustCompile(`^(CREATE|GET|UPDATE|DELETE|USE)\s*(.*)$`)
+	return regexp.MustCompile(`(?i)^(CREATE|GET|UPDATE|DELETE|USE)\s*(.*)$`)
 }
 
 // GetUseCommandRegex returns the regex for USE commands
 func GetUseCommandRegex() *regexp.Regexp {
-	return regexp.MustCompile(`^USE\s+(.+)$`)
+	return regexp.MustCompile(`(?i)^USE\s+(.+)$`)
 }
 
 // IsGetDbsCommand checks if the command is GET dbs
 func IsGetDbsCommand(command string, args string) bool {
-	return strings.ToUpper(command) == "GET" && strings.TrimSpace(args) == "dbs"
+	return strings.ToUpper(command) == "GET" && strings.ToLower(strings.TrimSpace(args)) == "dbs"
 }
 
 // IsGetTablesCommand checks if the command is GET tables
 func IsGetTablesCommand(command string, args string) bool {
-	return strings.ToUpper(command) == "GET" && strings.TrimSpace(args) == "tables"
+	return strings.ToUpper(command) == "GET" && strings.ToLower(strings.TrimSpace(args)) == "tables"
 }
 
 // ParseArg parses the argument string into a map

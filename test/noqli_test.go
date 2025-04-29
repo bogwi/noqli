@@ -214,7 +214,7 @@ func TestCreateCommand(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			err := pkg.HandleCreate(testDB, tc.args)
+			err := pkg.HandleCreate(testDB, tc.args, true)
 
 			if tc.expected == nil {
 				assert.NoError(t, err)
@@ -297,7 +297,7 @@ func TestGetCommand(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			err := pkg.HandleGet(testDB, tc.args)
+			err := pkg.HandleGet(testDB, tc.args, true)
 
 			if tc.shouldError {
 				assert.Error(t, err)
@@ -375,7 +375,7 @@ func TestUpdateCommand(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			err := pkg.HandleUpdate(testDB, tc.args)
+			err := pkg.HandleUpdate(testDB, tc.args, true)
 
 			if tc.shouldError {
 				assert.Error(t, err)
@@ -462,7 +462,7 @@ func TestDeleteCommand(t *testing.T) {
 			resetTable(t)
 			insertTestData(t)
 
-			err := pkg.HandleDelete(testDB, tc.args)
+			err := pkg.HandleDelete(testDB, tc.args, true)
 
 			if tc.shouldError {
 				assert.Error(t, err)
@@ -611,7 +611,7 @@ func TestHandleCommand(t *testing.T) {
 	err := pkg.HandleCreate(testDB, map[string]interface{}{
 		"name":  "Test User",
 		"email": "test@example.com",
-	})
+	}, true)
 	assert.NoError(t, err)
 
 	for _, tc := range tests {
@@ -643,13 +643,13 @@ func TestHandleCommand(t *testing.T) {
 
 				switch command {
 				case "CREATE":
-					return pkg.HandleCreate(db, argObj)
+					return pkg.HandleCreate(db, argObj, true)
 				case "GET":
-					return pkg.HandleGet(db, argObj)
+					return pkg.HandleGet(db, argObj, true)
 				case "UPDATE":
-					return pkg.HandleUpdate(db, argObj)
+					return pkg.HandleUpdate(db, argObj, true)
 				case "DELETE":
-					return pkg.HandleDelete(db, argObj)
+					return pkg.HandleDelete(db, argObj, true)
 				default:
 					return fmt.Errorf("unknown command: %s", command)
 				}
@@ -675,7 +675,7 @@ func TestDynamicSchema(t *testing.T) {
 		"age":      25,
 		"location": "New York",
 		"active":   true,
-	})
+	}, true)
 	assert.NoError(t, err)
 
 	// Check if columns were created
@@ -728,5 +728,45 @@ TEST_DB_USER=root
 TEST_DB_PASS=1234
 `
 	err := os.WriteFile(".env.test", []byte(content), 0644)
+	assert.NoError(t, err)
+}
+
+// TestOutputFormats tests both JSON and tabular output formats
+func TestOutputFormats(t *testing.T) {
+	resetTable(t)
+
+	// Insert a test record
+	err := pkg.HandleCreate(testDB, map[string]interface{}{
+		"name":  "Format Test User",
+		"email": "format@example.com",
+	}, true) // JSON output
+	assert.NoError(t, err)
+
+	// Test JSON output (lowercase commands)
+	err = pkg.HandleGet(testDB, nil, true)
+	assert.NoError(t, err)
+
+	// Test tabular output (uppercase commands)
+	err = pkg.HandleGet(testDB, nil, false)
+	assert.NoError(t, err)
+
+	// Test update with JSON output
+	err = pkg.HandleUpdate(testDB, map[string]interface{}{
+		"id":   1,
+		"name": "Updated Format User",
+	}, true)
+	assert.NoError(t, err)
+
+	// Test update with tabular output
+	err = pkg.HandleUpdate(testDB, map[string]interface{}{
+		"id":    1,
+		"email": "updated@example.com",
+	}, false)
+	assert.NoError(t, err)
+
+	// Test delete with JSON output
+	err = pkg.HandleDelete(testDB, map[string]interface{}{
+		"id": 1,
+	}, true)
 	assert.NoError(t, err)
 }

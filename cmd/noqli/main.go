@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -91,14 +92,18 @@ func handleCommand(db *sql.DB, line string) error {
 		return fmt.Errorf("invalid command. Use CREATE, GET, UPDATE, DELETE, USE, or EXIT")
 	}
 
-	command := strings.ToUpper(matches[1])
+	originalCommand := matches[1]
+	command := strings.ToUpper(originalCommand)
 	args := matches[2]
+
+	// Check if command was originally uppercase (for formatting choice)
+	useJsonOutput := originalCommand != command
 
 	// Special handling for GET dbs and GET tables
 	if pkg.IsGetDbsCommand(command, args) {
-		return handleGetDatabases(db)
+		return handleGetDatabases(db, line)
 	} else if pkg.IsGetTablesCommand(command, args) {
-		return handleGetTables(db)
+		return handleGetTables(db, line)
 	}
 
 	// Handle regular CRUD operations
@@ -119,13 +124,13 @@ func handleCommand(db *sql.DB, line string) error {
 
 	switch command {
 	case "CREATE":
-		return pkg.HandleCreate(db, argObj)
+		return pkg.HandleCreate(db, argObj, useJsonOutput)
 	case "GET":
-		return pkg.HandleGet(db, argObj)
+		return pkg.HandleGet(db, argObj, useJsonOutput)
 	case "UPDATE":
-		return pkg.HandleUpdate(db, argObj)
+		return pkg.HandleUpdate(db, argObj, useJsonOutput)
 	case "DELETE":
-		return pkg.HandleDelete(db, argObj)
+		return pkg.HandleDelete(db, argObj, useJsonOutput)
 	default:
 		return fmt.Errorf("unknown command: %s", command)
 	}
@@ -168,27 +173,55 @@ func handleUse(db *sql.DB, name string) error {
 }
 
 // handleGetDatabases shows all available databases
-func handleGetDatabases(db *sql.DB) error {
+func handleGetDatabases(db *sql.DB, line string) error {
 	rows, err := db.Query("SHOW DATABASES")
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 
-	fmt.Println("Available databases:")
-	for rows.Next() {
-		var dbName string
-		if err := rows.Scan(&dbName); err != nil {
-			return err
+	// Check if the command was in uppercase (for formatting choice)
+	useJsonOutput := false
+	for _, r := range line {
+		if r == 'g' || r == 'G' {
+			useJsonOutput = (r == 'g')
+			break
 		}
-		fmt.Println("- " + dbName)
+	}
+
+	if useJsonOutput {
+		// JSON output
+		var databases []string
+		for rows.Next() {
+			var dbName string
+			if err := rows.Scan(&dbName); err != nil {
+				return err
+			}
+			databases = append(databases, dbName)
+		}
+
+		resultJSON, _ := json.MarshalIndent(databases, "", "  ")
+		fmt.Printf("Databases: %s\n", resultJSON)
+	} else {
+		// MySQL-style tabular output
+		var databases []map[string]interface{}
+		for rows.Next() {
+			var dbName string
+			if err := rows.Scan(&dbName); err != nil {
+				return err
+			}
+			databases = append(databases, map[string]interface{}{"Database": dbName})
+		}
+
+		columns := []string{"Database"}
+		pkg.PrintTabularResults(columns, databases)
 	}
 
 	return nil
 }
 
 // handleGetTables shows all tables in the current database
-func handleGetTables(db *sql.DB) error {
+func handleGetTables(db *sql.DB, line string) error {
 	if pkg.CurrentDB == "" {
 		return fmt.Errorf("no database selected. Use 'USE database_name' first")
 	}
@@ -199,13 +232,43 @@ func handleGetTables(db *sql.DB) error {
 	}
 	defer rows.Close()
 
-	fmt.Printf("Tables in database '%s':\n", pkg.CurrentDB)
-	for rows.Next() {
-		var tableName string
-		if err := rows.Scan(&tableName); err != nil {
-			return err
+	// Check if the command was in uppercase (for formatting choice)
+	useJsonOutput := false
+	for _, r := range line {
+		if r == 'g' || r == 'G' {
+			useJsonOutput = (r == 'g')
+			break
 		}
-		fmt.Println("- " + tableName)
+	}
+
+	if useJsonOutput {
+		// JSON output
+		var tables []string
+		for rows.Next() {
+			var tableName string
+			if err := rows.Scan(&tableName); err != nil {
+				return err
+			}
+			tables = append(tables, tableName)
+		}
+
+		resultJSON, _ := json.MarshalIndent(tables, "", "  ")
+		fmt.Printf("Tables in %s: %s\n", pkg.CurrentDB, resultJSON)
+	} else {
+		// MySQL-style tabular output
+		var tables []map[string]interface{}
+		tableTitleColumn := fmt.Sprintf("Tables_in_%s", pkg.CurrentDB)
+
+		for rows.Next() {
+			var tableName string
+			if err := rows.Scan(&tableName); err != nil {
+				return err
+			}
+			tables = append(tables, map[string]interface{}{tableTitleColumn: tableName})
+		}
+
+		columns := []string{tableTitleColumn}
+		pkg.PrintTabularResults(columns, tables)
 	}
 
 	return nil

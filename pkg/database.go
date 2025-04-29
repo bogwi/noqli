@@ -66,7 +66,7 @@ func ensureColumns(db *sql.DB, fields map[string]interface{}) error {
 }
 
 // HandleCreate handles the CREATE command
-func HandleCreate(db *sql.DB, args map[string]interface{}) error {
+func HandleCreate(db *sql.DB, args map[string]interface{}, useJsonOutput bool) error {
 	if CurrentTable == "" {
 		return fmt.Errorf("no table selected")
 	}
@@ -111,14 +111,22 @@ func HandleCreate(db *sql.DB, args map[string]interface{}) error {
 
 	// Output result
 	args["id"] = id
-	resultJSON, _ := json.MarshalIndent(args, "", "  ")
-	fmt.Printf("Created: %s\n", resultJSON)
+
+	if useJsonOutput {
+		// JSON output (original)
+		resultJSON, _ := json.MarshalIndent(args, "", "  ")
+		fmt.Printf("Created: %s\n", resultJSON)
+	} else {
+		// MySQL-style tabular output
+		fmt.Println("Query OK, 1 row affected")
+		fmt.Printf("Last insert ID: %d\n", id)
+	}
 
 	return nil
 }
 
 // HandleGet handles the GET command
-func HandleGet(db *sql.DB, args map[string]interface{}) error {
+func HandleGet(db *sql.DB, args map[string]interface{}, useJsonOutput bool) error {
 	if CurrentTable == "" {
 		return fmt.Errorf("no table selected")
 	}
@@ -211,21 +219,27 @@ func HandleGet(db *sql.DB, args map[string]interface{}) error {
 		return nil
 	}
 
-	if _, ok := args["id"]; ok && len(results) == 1 && !isArrayOrRange(args["id"]) {
-		// Single result
-		resultJSON, _ := json.MarshalIndent(results[0], "", "  ")
-		fmt.Printf("Record: %s\n", resultJSON)
+	if useJsonOutput {
+		// JSON output (original)
+		if _, ok := args["id"]; ok && len(results) == 1 && !isArrayOrRange(args["id"]) {
+			// Single result
+			resultJSON, _ := json.MarshalIndent(results[0], "", "  ")
+			fmt.Printf("Record: %s\n", resultJSON)
+		} else {
+			// Multiple results
+			resultJSON, _ := json.MarshalIndent(results, "", "  ")
+			fmt.Printf("Records: %s\n", resultJSON)
+		}
 	} else {
-		// Multiple results
-		resultJSON, _ := json.MarshalIndent(results, "", "  ")
-		fmt.Printf("Records: %s\n", resultJSON)
+		// MySQL-style tabular output
+		PrintTabularResults(columns, results)
 	}
 
 	return nil
 }
 
 // HandleUpdate handles the UPDATE command
-func HandleUpdate(db *sql.DB, args map[string]interface{}) error {
+func HandleUpdate(db *sql.DB, args map[string]interface{}, useJsonOutput bool) error {
 	if CurrentTable == "" {
 		return fmt.Errorf("no table selected")
 	}
@@ -305,13 +319,19 @@ func HandleUpdate(db *sql.DB, args map[string]interface{}) error {
 		return fmt.Errorf("record(s) not found")
 	}
 
-	// Select the updated records
-	selectQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s", CurrentTable, whereClause)
-	return handleQueryAndDisplayResults(db, selectQuery, idValues, isArrayOrRange(id))
+	if useJsonOutput {
+		// Select the updated records for JSON output
+		selectQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s", CurrentTable, whereClause)
+		return handleQueryAndDisplayResults(db, selectQuery, idValues, isArrayOrRange(id), true)
+	} else {
+		// MySQL-style tabular output
+		fmt.Printf("Query OK, %d rows affected\n", affected)
+		return nil
+	}
 }
 
 // HandleDelete handles the DELETE command
-func HandleDelete(db *sql.DB, args map[string]interface{}) error {
+func HandleDelete(db *sql.DB, args map[string]interface{}, useJsonOutput bool) error {
 	if CurrentTable == "" {
 		return fmt.Errorf("no table selected")
 	}
@@ -365,7 +385,14 @@ func HandleDelete(db *sql.DB, args map[string]interface{}) error {
 		return fmt.Errorf("record(s) not found")
 	}
 
-	fmt.Printf("Deleted %d record(s)\n", affected)
+	if useJsonOutput {
+		// JSON output (original)
+		fmt.Printf("Deleted %d record(s)\n", affected)
+	} else {
+		// MySQL-style tabular output
+		fmt.Printf("Query OK, %d rows affected\n", affected)
+	}
+
 	return nil
 }
 
@@ -377,7 +404,7 @@ func isArrayOrRange(id interface{}) bool {
 }
 
 // handleQueryAndDisplayResults executes a query and displays the results
-func handleQueryAndDisplayResults(db *sql.DB, query string, values []interface{}, isMultiple bool) error {
+func handleQueryAndDisplayResults(db *sql.DB, query string, values []interface{}, isMultiple bool, useJsonOutput bool) error {
 	rows, err := db.Query(query, values...)
 	if err != nil {
 		return err
@@ -425,13 +452,70 @@ func handleQueryAndDisplayResults(db *sql.DB, query string, values []interface{}
 		return fmt.Errorf("no records found")
 	}
 
-	if !isMultiple && len(results) == 1 {
-		resultJSON, _ := json.MarshalIndent(results[0], "", "  ")
-		fmt.Println(string(resultJSON))
+	if useJsonOutput {
+		// JSON output (original)
+		if !isMultiple && len(results) == 1 {
+			resultJSON, _ := json.MarshalIndent(results[0], "", "  ")
+			fmt.Println(string(resultJSON))
+		} else {
+			resultJSON, _ := json.MarshalIndent(results, "", "  ")
+			fmt.Println(string(resultJSON))
+		}
 	} else {
-		resultJSON, _ := json.MarshalIndent(results, "", "  ")
-		fmt.Println(string(resultJSON))
+		// MySQL-style tabular output
+		PrintTabularResults(columns, results)
 	}
 
 	return nil
+}
+
+// printTabularResults prints results in a MySQL-like tabular format
+func PrintTabularResults(columns []string, results []map[string]interface{}) {
+	if len(results) == 0 {
+		return
+	}
+
+	// Calculate column widths
+	colWidths := make(map[string]int)
+	for _, col := range columns {
+		colWidths[col] = len(col)
+	}
+
+	// Find the max width for each column
+	for _, row := range results {
+		for col, val := range row {
+			valStr := fmt.Sprintf("%v", val)
+			if len(valStr) > colWidths[col] {
+				colWidths[col] = len(valStr)
+			}
+		}
+	}
+
+	// Print header
+	fmt.Println()
+	for _, col := range columns {
+		fmt.Printf("| %-*s ", colWidths[col], col)
+	}
+	fmt.Println("|")
+
+	// Print separator
+	for _, col := range columns {
+		fmt.Print("+")
+		for i := 0; i < colWidths[col]+2; i++ {
+			fmt.Print("-")
+		}
+	}
+	fmt.Println("+")
+
+	// Print rows
+	for _, row := range results {
+		for _, col := range columns {
+			val := row[col]
+			fmt.Printf("| %-*v ", colWidths[col], val)
+		}
+		fmt.Println("|")
+	}
+
+	// Print row count
+	fmt.Printf("\n%d rows in set\n", len(results))
 }

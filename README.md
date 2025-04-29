@@ -11,6 +11,7 @@ NoQLi (pronounced "no-klee") is an interactive MySQL command-line interface with
 - Flexible query syntax with intuitive object notation
 - Database and table selection commands with dynamic prompt
 - Works with any MySQL database and table
+- Dual output format: JSON or MySQL-style tabular format
 
 ## Installation
 
@@ -110,6 +111,14 @@ Start the CLI:
 ### Command Syntax
 
 NoQLi supports several commands:
+
+#### Output Formats
+
+NoQLi now supports two output formats:
+- **JSON format**: Use lowercase commands (e.g., `get`, `create`) to get JSON-formatted responses
+- **MySQL-style tabular format**: Use UPPERCASE commands (e.g., `GET`, `CREATE`) to get native MySQL-style tabular output
+
+The command syntax remains flexible for both formats.
 
 #### Database and Table Selection
 
