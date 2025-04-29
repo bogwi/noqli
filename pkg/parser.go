@@ -33,7 +33,7 @@ func IsGetTablesCommand(command string, args string) bool {
 }
 
 // ParseArg parses the argument string into a map
-func ParseArg(str string) (map[string]interface{}, error) {
+func ParseArg(str string) (map[string]any, error) {
 	if str == "" {
 		return nil, nil
 	}
@@ -43,7 +43,7 @@ func ParseArg(str string) (map[string]interface{}, error) {
 	// Handle simple numeric ID case (e.g., GET 14)
 	if matches, _ := regexp.MatchString(`^\d+$`, trimmed); matches {
 		id, _ := strconv.Atoi(trimmed)
-		return map[string]interface{}{"id": id}, nil
+		return map[string]any{"id": id}, nil
 	}
 
 	// Handle object notation
@@ -68,12 +68,12 @@ func DisplayPrompt() string {
 }
 
 // parseObjectNotation handles the '{field1: value, field2: value}' syntax
-func parseObjectNotation(str string) (map[string]interface{}, error) {
+func parseObjectNotation(str string) (map[string]any, error) {
 	// Remove surrounding braces
 	trimmed := strings.TrimSpace(str[1 : len(str)-1])
 
 	// Result map
-	result := make(map[string]interface{})
+	result := make(map[string]any)
 
 	// Handle array assignments like [field1,field2] = value
 	arrayFieldRegex := regexp.MustCompile(`\[([^\]]+)\]\s*=\s*([^,}]+)`)
@@ -89,7 +89,7 @@ func parseObjectNotation(str string) (map[string]interface{}, error) {
 		trimmed = strings.Replace(trimmed, fullMatch, "", 1)
 
 		// Parse the value
-		var value interface{}
+		var value any
 
 		// Try as JSON
 		if err := json.Unmarshal([]byte(valueStr), &value); err != nil {
@@ -117,7 +117,7 @@ func parseObjectNotation(str string) (map[string]interface{}, error) {
 			return nil, fmt.Errorf("invalid range end: %v", err)
 		}
 
-		result["id"] = map[string]interface{}{
+		result["id"] = map[string]any{
 			"range": []int{start, end},
 		}
 
@@ -134,7 +134,7 @@ func parseObjectNotation(str string) (map[string]interface{}, error) {
 	if trimmed != "" {
 		// Try to parse as JSON
 		jsonStr := "{" + strings.Replace(trimmed, "'", "\"", -1) + "}"
-		var jsonObj map[string]interface{}
+		var jsonObj map[string]any
 
 		if err := json.Unmarshal([]byte(jsonStr), &jsonObj); err != nil {
 			// If JSON parsing fails, try a more manual approach
@@ -154,7 +154,7 @@ func parseObjectNotation(str string) (map[string]interface{}, error) {
 					elements := strings.Split(arrayStr, ",")
 
 					// Try to convert elements to integers
-					var intArray []interface{}
+					var intArray []any
 					for _, elem := range elements {
 						trimmedElem := strings.TrimSpace(elem)
 						if num, err := strconv.Atoi(trimmedElem); err == nil {

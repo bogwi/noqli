@@ -2,7 +2,6 @@ package pkg
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"strings"
 )
@@ -32,7 +31,7 @@ func getColumns(db *sql.DB) ([]string, error) {
 }
 
 // ensureColumns creates columns in the table if they don't exist
-func ensureColumns(db *sql.DB, fields map[string]interface{}) error {
+func ensureColumns(db *sql.DB, fields map[string]any) error {
 	if CurrentTable == "" {
 		return fmt.Errorf("no table selected")
 	}
@@ -66,7 +65,7 @@ func ensureColumns(db *sql.DB, fields map[string]interface{}) error {
 }
 
 // HandleCreate handles the CREATE command
-func HandleCreate(db *sql.DB, args map[string]interface{}, useJsonOutput bool) error {
+func HandleCreate(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 	if CurrentTable == "" {
 		return fmt.Errorf("no table selected")
 	}
@@ -83,7 +82,7 @@ func HandleCreate(db *sql.DB, args map[string]interface{}, useJsonOutput bool) e
 	// Build query
 	var fields []string
 	var placeholders []string
-	var values []interface{}
+	var values []any
 
 	for k, v := range args {
 		fields = append(fields, fmt.Sprintf("`%s`", k))
@@ -113,9 +112,8 @@ func HandleCreate(db *sql.DB, args map[string]interface{}, useJsonOutput bool) e
 	args["id"] = id
 
 	if useJsonOutput {
-		// JSON output (original)
-		resultJSON, _ := json.MarshalIndent(args, "", "  ")
-		fmt.Printf("Created: %s\n", resultJSON)
+		// Colorized JSON output
+		fmt.Printf("Created: %s\n", ColorJSON(args))
 	} else {
 		// MySQL-style tabular output
 		fmt.Println("Query OK, 1 row affected")
@@ -126,20 +124,20 @@ func HandleCreate(db *sql.DB, args map[string]interface{}, useJsonOutput bool) e
 }
 
 // HandleGet handles the GET command
-func HandleGet(db *sql.DB, args map[string]interface{}, useJsonOutput bool) error {
+func HandleGet(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 	if CurrentTable == "" {
 		return fmt.Errorf("no table selected")
 	}
 
 	var query string
-	var values []interface{}
+	var values []any
 
 	if args == nil {
 		// Get all records
 		query = fmt.Sprintf("SELECT * FROM %s", CurrentTable)
 	} else if id, ok := args["id"]; ok {
 		// Check if id is an array
-		if idSlice, ok := id.([]interface{}); ok {
+		if idSlice, ok := id.([]any); ok {
 			// Multiple IDs
 			placeholders := make([]string, len(idSlice))
 			for i, v := range idSlice {
@@ -147,7 +145,7 @@ func HandleGet(db *sql.DB, args map[string]interface{}, useJsonOutput bool) erro
 				values = append(values, v)
 			}
 			query = fmt.Sprintf("SELECT * FROM %s WHERE id IN (%s)", CurrentTable, strings.Join(placeholders, ","))
-		} else if idMap, ok := id.(map[string]interface{}); ok {
+		} else if idMap, ok := id.(map[string]any); ok {
 			// Range query
 			if rangeSlice, ok := idMap["range"].([]int); ok && len(rangeSlice) == 2 {
 				query = fmt.Sprintf("SELECT * FROM %s WHERE id >= ? AND id <= ?", CurrentTable)
@@ -178,12 +176,12 @@ func HandleGet(db *sql.DB, args map[string]interface{}, useJsonOutput bool) erro
 	}
 
 	// Prepare results
-	var results []map[string]interface{}
+	var results []map[string]any
 
 	for rows.Next() {
-		// Create a slice of interface{} to hold the values
-		values := make([]interface{}, len(columns))
-		valuePtrs := make([]interface{}, len(columns))
+		// Create a slice of any to hold the values
+		values := make([]any, len(columns))
+		valuePtrs := make([]any, len(columns))
 
 		for i := range columns {
 			valuePtrs[i] = &values[i]
@@ -194,9 +192,9 @@ func HandleGet(db *sql.DB, args map[string]interface{}, useJsonOutput bool) erro
 		}
 
 		// Create a map for this row
-		entry := make(map[string]interface{})
+		entry := make(map[string]any)
 		for i, col := range columns {
-			var v interface{}
+			var v any
 			val := values[i]
 
 			// Convert to appropriate Go type
@@ -220,15 +218,13 @@ func HandleGet(db *sql.DB, args map[string]interface{}, useJsonOutput bool) erro
 	}
 
 	if useJsonOutput {
-		// JSON output (original)
+		// Colorized JSON output
 		if _, ok := args["id"]; ok && len(results) == 1 && !isArrayOrRange(args["id"]) {
 			// Single result
-			resultJSON, _ := json.MarshalIndent(results[0], "", "  ")
-			fmt.Printf("Record: %s\n", resultJSON)
+			fmt.Printf("Record: %s\n", ColorJSON(results[0]))
 		} else {
 			// Multiple results
-			resultJSON, _ := json.MarshalIndent(results, "", "  ")
-			fmt.Printf("Records: %s\n", resultJSON)
+			fmt.Printf("Records: %s\n", ColorJSON(results))
 		}
 	} else {
 		// MySQL-style tabular output
@@ -239,7 +235,7 @@ func HandleGet(db *sql.DB, args map[string]interface{}, useJsonOutput bool) erro
 }
 
 // HandleUpdate handles the UPDATE command
-func HandleUpdate(db *sql.DB, args map[string]interface{}, useJsonOutput bool) error {
+func HandleUpdate(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 	if CurrentTable == "" {
 		return fmt.Errorf("no table selected")
 	}
@@ -262,7 +258,7 @@ func HandleUpdate(db *sql.DB, args map[string]interface{}, useJsonOutput bool) e
 
 	// Build query
 	var setStatements []string
-	var values []interface{}
+	var values []any
 
 	for k, v := range args {
 		setStatements = append(setStatements, fmt.Sprintf("`%s` = ?", k))
@@ -270,10 +266,10 @@ func HandleUpdate(db *sql.DB, args map[string]interface{}, useJsonOutput bool) e
 	}
 
 	var whereClause string
-	var idValues []interface{}
+	var idValues []any
 
 	// Handle different ID types
-	if idSlice, ok := id.([]interface{}); ok {
+	if idSlice, ok := id.([]any); ok {
 		// Multiple IDs
 		placeholders := make([]string, len(idSlice))
 		for i, v := range idSlice {
@@ -281,7 +277,7 @@ func HandleUpdate(db *sql.DB, args map[string]interface{}, useJsonOutput bool) e
 			idValues = append(idValues, v)
 		}
 		whereClause = fmt.Sprintf("id IN (%s)", strings.Join(placeholders, ","))
-	} else if idMap, ok := id.(map[string]interface{}); ok {
+	} else if idMap, ok := id.(map[string]any); ok {
 		// Range query
 		if rangeSlice, ok := idMap["range"].([]int); ok && len(rangeSlice) == 2 {
 			whereClause = "id >= ? AND id <= ?"
@@ -331,7 +327,7 @@ func HandleUpdate(db *sql.DB, args map[string]interface{}, useJsonOutput bool) e
 }
 
 // HandleDelete handles the DELETE command
-func HandleDelete(db *sql.DB, args map[string]interface{}, useJsonOutput bool) error {
+func HandleDelete(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 	if CurrentTable == "" {
 		return fmt.Errorf("no table selected")
 	}
@@ -343,10 +339,10 @@ func HandleDelete(db *sql.DB, args map[string]interface{}, useJsonOutput bool) e
 	id := args["id"]
 
 	var whereClause string
-	var values []interface{}
+	var values []any
 
 	// Handle different ID types
-	if idSlice, ok := id.([]interface{}); ok {
+	if idSlice, ok := id.([]any); ok {
 		// Multiple IDs
 		placeholders := make([]string, len(idSlice))
 		for i, v := range idSlice {
@@ -354,7 +350,7 @@ func HandleDelete(db *sql.DB, args map[string]interface{}, useJsonOutput bool) e
 			values = append(values, v)
 		}
 		whereClause = fmt.Sprintf("id IN (%s)", strings.Join(placeholders, ","))
-	} else if idMap, ok := id.(map[string]interface{}); ok {
+	} else if idMap, ok := id.(map[string]any); ok {
 		// Range query
 		if rangeSlice, ok := idMap["range"].([]int); ok && len(rangeSlice) == 2 {
 			whereClause = "id >= ? AND id <= ?"
@@ -397,14 +393,14 @@ func HandleDelete(db *sql.DB, args map[string]interface{}, useJsonOutput bool) e
 }
 
 // Helper function to determine if ID is an array or range
-func isArrayOrRange(id interface{}) bool {
-	_, isSlice := id.([]interface{})
-	_, isMap := id.(map[string]interface{})
+func isArrayOrRange(id any) bool {
+	_, isSlice := id.([]any)
+	_, isMap := id.(map[string]any)
 	return isSlice || isMap
 }
 
 // handleQueryAndDisplayResults executes a query and displays the results
-func handleQueryAndDisplayResults(db *sql.DB, query string, values []interface{}, isMultiple bool, useJsonOutput bool) error {
+func handleQueryAndDisplayResults(db *sql.DB, query string, values []any, isMultiple bool, useJsonOutput bool) error {
 	rows, err := db.Query(query, values...)
 	if err != nil {
 		return err
@@ -416,11 +412,11 @@ func handleQueryAndDisplayResults(db *sql.DB, query string, values []interface{}
 		return err
 	}
 
-	var results []map[string]interface{}
+	var results []map[string]any
 
 	for rows.Next() {
-		values := make([]interface{}, len(columns))
-		valuePtrs := make([]interface{}, len(columns))
+		values := make([]any, len(columns))
+		valuePtrs := make([]any, len(columns))
 
 		for i := range columns {
 			valuePtrs[i] = &values[i]
@@ -430,9 +426,9 @@ func handleQueryAndDisplayResults(db *sql.DB, query string, values []interface{}
 			return err
 		}
 
-		entry := make(map[string]interface{})
+		entry := make(map[string]any)
 		for i, col := range columns {
-			var v interface{}
+			var v any
 			val := values[i]
 
 			b, ok := val.([]byte)
@@ -453,13 +449,11 @@ func handleQueryAndDisplayResults(db *sql.DB, query string, values []interface{}
 	}
 
 	if useJsonOutput {
-		// JSON output (original)
+		// Colorized JSON output
 		if !isMultiple && len(results) == 1 {
-			resultJSON, _ := json.MarshalIndent(results[0], "", "  ")
-			fmt.Println(string(resultJSON))
+			fmt.Println(ColorJSON(results[0]))
 		} else {
-			resultJSON, _ := json.MarshalIndent(results, "", "  ")
-			fmt.Println(string(resultJSON))
+			fmt.Println(ColorJSON(results))
 		}
 	} else {
 		// MySQL-style tabular output
@@ -470,7 +464,7 @@ func handleQueryAndDisplayResults(db *sql.DB, query string, values []interface{}
 }
 
 // printTabularResults prints results in a MySQL-like tabular format
-func PrintTabularResults(columns []string, results []map[string]interface{}) {
+func PrintTabularResults(columns []string, results []map[string]any) {
 	if len(results) == 0 {
 		return
 	}

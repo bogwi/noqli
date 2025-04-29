@@ -11,7 +11,9 @@ NoQLi (pronounced "no-klee") is an interactive MySQL command-line interface with
 - Flexible query syntax with intuitive object notation
 - Database and table selection commands with dynamic prompt
 - Works with any MySQL database and table
-- Dual output format: JSON or MySQL-style tabular format
+- Dual output format: colorized JSON or MySQL-style tabular format
+- Enhanced keyboard navigation with arrow keys (LEFT/RIGHT for editing, UP/DOWN for history)
+- Namespace-aware command history (per database and table context)
 
 ## Installation
 
@@ -115,7 +117,7 @@ NoQLi supports several commands:
 #### Output Formats
 
 NoQLi now supports two output formats:
-- **JSON format**: Use lowercase commands (e.g., `get`, `create`) to get JSON-formatted responses
+- **Colorized JSON format**: Use lowercase commands (e.g., `get`, `create`) to get colorized JSON-formatted responses
 - **MySQL-style tabular format**: Use UPPERCASE commands (e.g., `GET`, `CREATE`) to get native MySQL-style tabular output
 
 The command syntax remains flexible for both formats.
@@ -248,6 +250,28 @@ NoQLi supports some special syntax features:
    ```
    This is equivalent to `GET {id: 5}`
 
+### Keyboard Navigation
+
+NoQLi provides enhanced command-line editing capabilities:
+
+- **Left/Right Arrow Keys**: Navigate through the current command to edit any part of it
+- **Up/Down Arrow Keys**: Browse through command history specific to your current context
+- **Tab Key**: Auto-complete common commands like USE, CREATE, GET, UPDATE, DELETE
+- **Ctrl+C**: Abort the current command input
+- **Ctrl+D**: Exit the application
+
+### Command History
+
+NoQLi maintains separate command histories for:
+
+1. Global context (when no database or table is selected)
+2. Database-specific context (when a database is selected but no table)
+3. Table-specific context (when both database and table are selected)
+
+This means that when you switch between databases or tables, your command history will be specific to that context, making it easier to recall relevant commands.
+
+Command history is saved between sessions in `~/.noqli/history.txt`.
+
 ## Technical Details
 
 NoQLi uses:
@@ -255,6 +279,8 @@ NoQLi uses:
 - Dynamic SQL query generation with parameter binding for security
 - Runtime schema modification through ALTER TABLE statements
 - Regular expressions for command parsing
+- Colorized JSON output via go-prettyjson
+- Enhanced terminal input with line editing via liner
 
 ## Limitations
 
@@ -267,4 +293,6 @@ To exit the application:
 
 ```
 EXIT
-``` 
+```
+
+You can also press Ctrl+D to exit. 

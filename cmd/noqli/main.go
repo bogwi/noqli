@@ -1,16 +1,16 @@
 package main
 
 import (
-	"bufio"
 	"database/sql"
-	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
 	"github.com/bogwi/noqli/pkg"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
+	"github.com/peterh/liner"
 )
 
 func main() {
@@ -45,34 +45,64 @@ func main() {
 	// Set initial database from env
 	pkg.CurrentDB = os.Getenv("DB_NAME")
 
-	// Start CLI
+	// Initialize command history
+	history := pkg.NewCommandHistory(100) // Keep 100 commands per namespace
+	history.LoadHistory()
+	history.UpdateNamespace(pkg.CurrentDB, pkg.CurrentTable)
+	defer history.SaveHistory() // Save history on exit
+
+	// Start CLI with liner for enhanced input
 	fmt.Println("NoQLi CLI. Type EXIT to quit.")
-	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
-		// Display prompt based on current db/table selection
-		fmt.Print(pkg.DisplayPrompt())
+		// Setup liner for this prompt
+		line := history.SetupLiner()
 
-		if !scanner.Scan() {
-			break
-		}
+		// Using a closure to properly handle defer
+		func() {
+			defer line.Close()
 
-		line := scanner.Text()
-		if strings.ToUpper(strings.TrimSpace(line)) == "EXIT" {
-			break
-		}
+			// Display prompt based on current db/table selection
+			prompt := pkg.DisplayPrompt()
 
-		if err := handleCommand(db, line); err != nil {
-			fmt.Println("Error:", err)
-		}
-	}
+			// Read input with line editing support
+			input, err := line.Prompt(prompt)
+			if err != nil {
+				if err == io.EOF {
+					fmt.Println("EOF")
+					os.Exit(0)
+				} else if err == liner.ErrPromptAborted {
+					fmt.Println("Aborted")
+					return
+				} else {
+					fmt.Println("Error reading input:", err)
+					os.Exit(1)
+				}
+			}
 
-	if err := scanner.Err(); err != nil {
-		fmt.Println("Error reading input:", err)
+			// Process the command
+			trimmedInput := strings.TrimSpace(input)
+			if trimmedInput == "" {
+				return
+			}
+
+			// Check for exit command
+			if strings.ToUpper(trimmedInput) == "EXIT" {
+				os.Exit(0)
+			}
+
+			// Add to history if it's a valid command
+			history.AddHistory(trimmedInput)
+
+			// Process command
+			if err := handleCommand(db, trimmedInput, history); err != nil {
+				fmt.Println("Error:", err)
+			}
+		}()
 	}
 }
 
-func handleCommand(db *sql.DB, line string) error {
+func handleCommand(db *sql.DB, line string, history *pkg.CommandHistory) error {
 	trimmed := strings.TrimSpace(line)
 
 	// Check for USE command first
@@ -81,7 +111,12 @@ func handleCommand(db *sql.DB, line string) error {
 
 	if useMatches != nil {
 		// Handle USE command
-		return handleUse(db, useMatches[1])
+		err := handleUse(db, useMatches[1])
+		if err == nil {
+			// Update history namespace when DB/table changes
+			history.UpdateNamespace(pkg.CurrentDB, pkg.CurrentTable)
+		}
+		return err
 	}
 
 	// Handle other commands
@@ -107,7 +142,7 @@ func handleCommand(db *sql.DB, line string) error {
 	}
 
 	// Handle regular CRUD operations
-	var argObj map[string]interface{}
+	var argObj map[string]any
 	var err error
 
 	if args != "" {
@@ -158,7 +193,7 @@ func handleUse(db *sql.DB, name string) error {
 		return fmt.Errorf("no database selected. Use 'USE database_name' first")
 	}
 
-	err = db.QueryRow(fmt.Sprintf("SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?"),
+	err = db.QueryRow("SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?",
 		pkg.CurrentDB, name).Scan(&exists)
 	if err == nil {
 		// It's a table, select it
@@ -190,7 +225,7 @@ func handleGetDatabases(db *sql.DB, line string) error {
 	}
 
 	if useJsonOutput {
-		// JSON output
+		// Colorized JSON output
 		var databases []string
 		for rows.Next() {
 			var dbName string
@@ -200,17 +235,16 @@ func handleGetDatabases(db *sql.DB, line string) error {
 			databases = append(databases, dbName)
 		}
 
-		resultJSON, _ := json.MarshalIndent(databases, "", "  ")
-		fmt.Printf("Databases: %s\n", resultJSON)
+		fmt.Printf("Databases: %s\n", pkg.ColorJSON(databases))
 	} else {
 		// MySQL-style tabular output
-		var databases []map[string]interface{}
+		var databases []map[string]any
 		for rows.Next() {
 			var dbName string
 			if err := rows.Scan(&dbName); err != nil {
 				return err
 			}
-			databases = append(databases, map[string]interface{}{"Database": dbName})
+			databases = append(databases, map[string]any{"Database": dbName})
 		}
 
 		columns := []string{"Database"}
@@ -242,7 +276,7 @@ func handleGetTables(db *sql.DB, line string) error {
 	}
 
 	if useJsonOutput {
-		// JSON output
+		// Colorized JSON output
 		var tables []string
 		for rows.Next() {
 			var tableName string
@@ -252,11 +286,10 @@ func handleGetTables(db *sql.DB, line string) error {
 			tables = append(tables, tableName)
 		}
 
-		resultJSON, _ := json.MarshalIndent(tables, "", "  ")
-		fmt.Printf("Tables in %s: %s\n", pkg.CurrentDB, resultJSON)
+		fmt.Printf("Tables in %s: %s\n", pkg.CurrentDB, pkg.ColorJSON(tables))
 	} else {
 		// MySQL-style tabular output
-		var tables []map[string]interface{}
+		var tables []map[string]any
 		tableTitleColumn := fmt.Sprintf("Tables_in_%s", pkg.CurrentDB)
 
 		for rows.Next() {
@@ -264,7 +297,7 @@ func handleGetTables(db *sql.DB, line string) error {
 			if err := rows.Scan(&tableName); err != nil {
 				return err
 			}
-			tables = append(tables, map[string]interface{}{tableTitleColumn: tableName})
+			tables = append(tables, map[string]any{tableTitleColumn: tableName})
 		}
 
 		columns := []string{tableTitleColumn}
