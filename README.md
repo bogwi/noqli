@@ -229,7 +229,7 @@ Update existing records:
 
 4. Update records filtered by any column:
    ```
-   UPDATE {email: 'alice@example.com', status: 'active'}
+   UPDATE {email: ['alice@example.com'], status: 'active'}
    ```
    This updates the status to 'active' for records with email 'alice@example.com'.
 

@@ -449,8 +449,51 @@ func HandleUpdate(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 		// Select the updated records for JSON output
 		var selectQuery string
 		if whereClause != "" {
-			selectQuery = fmt.Sprintf("SELECT * FROM %s WHERE %s", CurrentTable, whereClause)
-			return handleQueryAndDisplayResults(db, selectQuery, whereValues, len(filterFields) > 0, true)
+			// The issue is here - when we update fields that are also used in the filter,
+			// running the same query again won't find any matches
+
+			// Original code - using the same whereClause as filter
+			// selectQuery = fmt.Sprintf("SELECT * FROM %s WHERE %s", CurrentTable, whereClause)
+			// return handleQueryAndDisplayResults(db, selectQuery, whereValues, len(filterFields) > 0, true)
+
+			// Modified code - to fix the issue, we need to select rows by their IDs
+			// First get the IDs of the affected rows
+			var idQuery string
+			if whereClause != "" {
+				idQuery = fmt.Sprintf("SELECT id FROM %s WHERE %s", CurrentTable, whereClause)
+			} else {
+				idQuery = fmt.Sprintf("SELECT id FROM %s", CurrentTable)
+			}
+
+			rows, err := db.Query(idQuery, whereValues...)
+			if err != nil {
+				return err
+			}
+			defer rows.Close()
+
+			var ids []interface{}
+			for rows.Next() {
+				var id interface{}
+				if err := rows.Scan(&id); err != nil {
+					return err
+				}
+				ids = append(ids, id)
+			}
+
+			// If we found matching rows, display them
+			if len(ids) > 0 {
+				placeholders := make([]string, len(ids))
+				for i := range placeholders {
+					placeholders[i] = "?"
+				}
+				selectQuery = fmt.Sprintf("SELECT * FROM %s WHERE id IN (%s)",
+					CurrentTable, strings.Join(placeholders, ","))
+
+				// Use these IDs to display the updated records
+				return handleQueryAndDisplayResults(db, selectQuery, ids, true, true)
+			} else {
+				return fmt.Errorf("no records matched the filter criteria")
+			}
 		} else {
 			selectQuery = fmt.Sprintf("SELECT * FROM %s LIMIT 10", CurrentTable)
 			fmt.Printf("Updated %d record(s). Showing first 10:\n", affected)
