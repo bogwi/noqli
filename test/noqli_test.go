@@ -293,6 +293,40 @@ func TestGetCommand(t *testing.T) {
 			expectedCount: 0,
 			shouldError:   false, // NoQLi doesn't error on no records, just returns "No records found"
 		},
+		// New test cases for filtering by non-ID columns
+		{
+			name: "Get User by Email",
+			args: map[string]interface{}{
+				"email": "user1@example.com",
+			},
+			expectedCount: 1,
+			shouldError:   false,
+		},
+		{
+			name: "Get Multiple Users by Email Array",
+			args: map[string]interface{}{
+				"email": []interface{}{"user1@example.com", "user2@example.com"},
+			},
+			expectedCount: 2,
+			shouldError:   false,
+		},
+		{
+			name: "Get Users by Multiple Criteria",
+			args: map[string]interface{}{
+				"name":  "User 1",
+				"email": "user1@example.com",
+			},
+			expectedCount: 1,
+			shouldError:   false,
+		},
+		{
+			name: "Get Users by Non-existent Email",
+			args: map[string]interface{}{
+				"email": "nonexistent@example.com",
+			},
+			expectedCount: 0,
+			shouldError:   false,
+		},
 	}
 
 	for _, tc := range tests {
@@ -305,10 +339,42 @@ func TestGetCommand(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			// Note: Since HandleGet prints results rather than returning them,
-			// we can't easily verify the actual results in this test.
-			// In a real implementation, we might modify HandleGet to return results
-			// or use a mock stdout to capture the output.
+			// Validate the query results directly from the database
+			if tc.args != nil {
+				query := "SELECT COUNT(*) FROM users WHERE 1=1"
+				var params []interface{}
+
+				// Add conditions for each argument
+				for field, value := range tc.args {
+					if sliceVal, ok := value.([]interface{}); ok {
+						// Handle array values (IN clause)
+						placeholders := make([]string, len(sliceVal))
+						for i := range placeholders {
+							placeholders[i] = "?"
+						}
+						query += fmt.Sprintf(" AND `%s` IN (%s)", field, strings.Join(placeholders, ","))
+						for _, v := range sliceVal {
+							params = append(params, v)
+						}
+					} else if mapVal, ok := value.(map[string]interface{}); ok {
+						// Handle range queries
+						if rangeSlice, ok := mapVal["range"].([]int); ok && len(rangeSlice) == 2 {
+							query += fmt.Sprintf(" AND `%s` >= ? AND `%s` <= ?", field, field)
+							params = append(params, rangeSlice[0], rangeSlice[1])
+						}
+					} else {
+						// Handle simple value
+						query += fmt.Sprintf(" AND `%s` = ?", field)
+						params = append(params, value)
+					}
+				}
+
+				var count int
+				err := testDB.QueryRow(query, params...).Scan(&count)
+				assert.NoError(t, err, "Error executing validation query")
+				assert.Equal(t, tc.expectedCount, count, "Expected %d records, got %d for test: %s",
+					tc.expectedCount, count, tc.name)
+			}
 		})
 	}
 }
@@ -318,41 +384,68 @@ func TestUpdateCommand(t *testing.T) {
 	resetTable(t)
 	insertTestData(t)
 
+	// Create a temporary function to override user input for testing
+	originalScanln := pkg.ScanForConfirmation
+	defer func() {
+		pkg.ScanForConfirmation = originalScanln
+	}()
+
+	// Mock the ScanForConfirmation function to always return "y" during tests
+	pkg.ScanForConfirmation = func() string {
+		return "y"
+	}
+
 	tests := []struct {
-		name        string
-		args        map[string]interface{}
-		affectedIDs []int
-		shouldError bool
+		name          string
+		args          map[string]interface{}
+		affectedCount int
+		filterField   string      // Field to filter by when verifying the update
+		filterValue   interface{} // Value to filter by when verifying the update
+		updateField   string      // Field that was updated
+		updateValue   interface{} // New value that should be set
+		shouldError   bool
 	}{
 		{
-			name: "Update Single User",
+			name: "Update Single User by ID",
 			args: map[string]interface{}{
 				"id":    1,
 				"name":  "Updated Name",
 				"email": "updated@example.com",
 			},
-			affectedIDs: []int{1},
-			shouldError: false,
+			affectedCount: 1,
+			filterField:   "id",
+			filterValue:   1,
+			updateField:   "name",
+			updateValue:   "Updated Name",
+			shouldError:   false,
 		},
 		{
-			name: "Update Multiple Users",
+			name: "Update Multiple Users by ID Array",
 			args: map[string]interface{}{
 				"id":     []interface{}{2, 3},
 				"status": "inactive",
 			},
-			affectedIDs: []int{2, 3},
-			shouldError: false,
+			affectedCount: 2,
+			filterField:   "id",
+			filterValue:   []interface{}{2, 3},
+			updateField:   "status",
+			updateValue:   "inactive",
+			shouldError:   false,
 		},
 		{
-			name: "Update Users in Range",
+			name: "Update Users in ID Range",
 			args: map[string]interface{}{
 				"id": map[string]interface{}{
 					"range": []int{1, 3},
 				},
 				"updated": true,
 			},
-			affectedIDs: []int{1, 2, 3},
-			shouldError: false,
+			affectedCount: 3,
+			filterField:   "id",
+			filterValue:   map[string]interface{}{"range": []int{1, 3}},
+			updateField:   "updated",
+			updateValue:   true,
+			shouldError:   false,
 		},
 		{
 			name: "Update Non-existent User",
@@ -360,21 +453,72 @@ func TestUpdateCommand(t *testing.T) {
 				"id":   999,
 				"name": "Won't Update",
 			},
-			affectedIDs: []int{},
-			shouldError: true,
+			affectedCount: 0,
+			filterField:   "id",
+			filterValue:   999,
+			updateField:   "name",
+			updateValue:   "Won't Update",
+			shouldError:   true,
+		},
+		// New test cases for the enhanced filtering functionality
+		{
+			// This is now testing that we correctly handle filter vs update fields
+			// email with a regular string should be an update field, not a filter
+			name: "Update All Users with Email Field",
+			args: map[string]interface{}{
+				"email": "updated@example.com",
+			},
+			affectedCount: 3, // All records should be updated
+			filterField:   "id",
+			filterValue:   []interface{}{1, 2, 3},
+			updateField:   "email",
+			updateValue:   "updated@example.com",
+			shouldError:   false,
 		},
 		{
-			name: "Update Without ID",
+			name: "Update Users Filtered by Email Array",
 			args: map[string]interface{}{
-				"name": "Missing ID",
+				"email":  []interface{}{"user1@example.com", "user2@example.com"}, // Array = filter
+				"status": "batch-updated",                                         // Update field
 			},
-			affectedIDs: []int{},
-			shouldError: true,
+			affectedCount: 2,
+			filterField:   "email",
+			filterValue:   []interface{}{"user1@example.com", "user2@example.com"},
+			updateField:   "status",
+			updateValue:   "batch-updated",
+			shouldError:   false,
+		},
+		{
+			name: "Update with Only Filter",
+			args: map[string]interface{}{
+				"email": []interface{}{"user1@example.com", "user2@example.com"}, // Only a filter, no update fields
+			},
+			affectedCount: 0,
+			filterField:   "email",
+			filterValue:   []interface{}{"user1@example.com", "user2@example.com"},
+			updateField:   "",
+			updateValue:   nil,
+			shouldError:   true,
+		},
+		{
+			name: "Update with No Filters (All Records)",
+			args: map[string]interface{}{
+				"role": "user", // Just an update field
+			},
+			affectedCount: 3, // All records should be updated
+			filterField:   "id",
+			filterValue:   []interface{}{1, 2, 3},
+			updateField:   "role",
+			updateValue:   "user",
+			shouldError:   false,
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			resetTable(t)
+			insertTestData(t)
+
 			err := pkg.HandleUpdate(testDB, tc.args, true)
 
 			if tc.shouldError {
@@ -382,23 +526,64 @@ func TestUpdateCommand(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 
-				// Verify updates for each affected ID
-				for _, id := range tc.affectedIDs {
-					var count int
-					query := "SELECT COUNT(*) FROM users WHERE id = ?"
-					params := []interface{}{id}
+				// Construct a query to verify the update
+				var query string
+				var params []interface{}
 
-					// Add field conditions if present
-					for k, v := range tc.args {
-						if k != "id" {
-							query += fmt.Sprintf(" AND `%s` = ?", k)
-							params = append(params, v)
-						}
+				// Build the filter part of the query
+				if sliceVal, ok := tc.filterValue.([]interface{}); ok {
+					// Handle array values (IN clause)
+					placeholders := make([]string, len(sliceVal))
+					for i := range placeholders {
+						placeholders[i] = "?"
 					}
+					query = fmt.Sprintf("SELECT COUNT(*) FROM users WHERE `%s` IN (%s)",
+						tc.filterField, strings.Join(placeholders, ","))
 
-					err := testDB.QueryRow(query, params...).Scan(&count)
-					assert.NoError(t, err)
-					assert.Equal(t, 1, count, "Update not applied for ID %d", id)
+					for _, v := range sliceVal {
+						params = append(params, v)
+					}
+				} else if mapVal, ok := tc.filterValue.(map[string]interface{}); ok {
+					// Handle range queries
+					if rangeSlice, ok := mapVal["range"].([]int); ok && len(rangeSlice) == 2 {
+						query = fmt.Sprintf("SELECT COUNT(*) FROM users WHERE `%s` >= ? AND `%s` <= ?",
+							tc.filterField, tc.filterField)
+						params = append(params, rangeSlice[0], rangeSlice[1])
+					}
+				} else {
+					// Handle simple value
+					query = fmt.Sprintf("SELECT COUNT(*) FROM users WHERE `%s` = ?",
+						tc.filterField)
+					params = append(params, tc.filterValue)
+				}
+
+				// Execute the verification query
+				var count int
+				err := testDB.QueryRow(query, params...).Scan(&count)
+
+				// If we don't expect any affected rows, that's fine
+				if tc.affectedCount == 0 {
+					// Skip verification as we expect no records
+				} else {
+					assert.NoError(t, err, "Error executing validation query")
+					assert.Equal(t, tc.affectedCount, count,
+						"Expected %d records for filter, got %d for test: %s",
+						tc.affectedCount, count, tc.name)
+
+					// For each record that matches the filter, check if update was applied
+					// But we need to check in a separate query to avoid counting errors
+					if count > 0 {
+						// Verify the update was applied to the records
+						updateQuery := query + fmt.Sprintf(" AND `%s` = ?", tc.updateField)
+						updateParams := append([]interface{}{}, params...)
+						updateParams = append(updateParams, tc.updateValue)
+
+						var updatedCount int
+						err = testDB.QueryRow(updateQuery, updateParams...).Scan(&updatedCount)
+						assert.NoError(t, err, "Error executing update validation query")
+						assert.Equal(t, count, updatedCount,
+							"Not all matching records were updated in test: %s", tc.name)
+					}
 				}
 			}
 		})

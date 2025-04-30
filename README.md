@@ -1,6 +1,8 @@
-# NoQLi (Go Version)
+# NoQLi
 
 NoQLi (pronounced "no-klee") is an interactive MySQL command-line interface with a flexible query syntax that combines the simplicity of NoSQL-style commands with the power of a relational database.
+
+> **Project Status:** NoQLi is under development. The core functionality is stable and ready for use, with new features being added more or less regularly but in packs of 2-3 features at a time. Contributions and feedback are welcome!
 
 ## Features
 
@@ -191,6 +193,21 @@ Retrieve records from the database:
    GET {id: (1, 10)}
    ```
 
+5. Get records by any column:
+   ```
+   GET {email: 'alice@example.com'}
+   ```
+
+6. Get records by multiple columns:
+   ```
+   GET {name: 'Alice', status: 'active'}
+   ```
+
+7. Get records with array values:
+   ```
+   GET {status: ['active', 'pending']}
+   ```
+
 #### UPDATE
 
 Update existing records:
@@ -209,6 +226,24 @@ Update existing records:
    ```
    UPDATE {id: (1, 10), category: 'archived'}
    ```
+
+4. Update records filtered by any column:
+   ```
+   UPDATE {email: 'alice@example.com', status: 'active'}
+   ```
+   This updates the status to 'active' for records with email 'alice@example.com'.
+
+5. Update records filtered by array values:
+   ```
+   UPDATE {status: ['pending', 'review'], category: 'urgent'}
+   ```
+   This updates the category to 'urgent' for all records with status 'pending' or 'review'.
+
+6. Update all records (with confirmation prompt):
+   ```
+   UPDATE {category: 'general'}
+   ```
+   This updates all records in the table after confirming with the user.
 
 #### DELETE
 

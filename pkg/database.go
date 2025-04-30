@@ -129,37 +129,51 @@ func HandleGet(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 		return fmt.Errorf("no table selected")
 	}
 
+	// Build query based on args
 	var query string
 	var values []any
 
 	if args == nil {
 		// Get all records
 		query = fmt.Sprintf("SELECT * FROM %s", CurrentTable)
-	} else if id, ok := args["id"]; ok {
-		// Check if id is an array
-		if idSlice, ok := id.([]any); ok {
-			// Multiple IDs
-			placeholders := make([]string, len(idSlice))
-			for i, v := range idSlice {
-				placeholders[i] = "?"
-				values = append(values, v)
-			}
-			query = fmt.Sprintf("SELECT * FROM %s WHERE id IN (%s)", CurrentTable, strings.Join(placeholders, ","))
-		} else if idMap, ok := id.(map[string]any); ok {
-			// Range query
-			if rangeSlice, ok := idMap["range"].([]int); ok && len(rangeSlice) == 2 {
-				query = fmt.Sprintf("SELECT * FROM %s WHERE id >= ? AND id <= ?", CurrentTable)
-				values = append(values, rangeSlice[0], rangeSlice[1])
-			} else {
-				return fmt.Errorf("invalid range format")
-			}
-		} else {
-			// Single ID
-			query = fmt.Sprintf("SELECT * FROM %s WHERE id = ?", CurrentTable)
-			values = append(values, id)
-		}
 	} else {
-		return fmt.Errorf("invalid GET arguments")
+		// Build WHERE clause
+		var whereConditions []string
+
+		for field, value := range args {
+			if sliceValue, ok := value.([]any); ok {
+				// Handle array of values (IN clause)
+				placeholders := make([]string, len(sliceValue))
+				for i, v := range sliceValue {
+					placeholders[i] = "?"
+					values = append(values, v)
+				}
+				whereConditions = append(whereConditions,
+					fmt.Sprintf("`%s` IN (%s)", field, strings.Join(placeholders, ",")))
+			} else if mapValue, ok := value.(map[string]any); ok {
+				// Handle range
+				if rangeSlice, ok := mapValue["range"].([]int); ok && len(rangeSlice) == 2 {
+					whereConditions = append(whereConditions,
+						fmt.Sprintf("`%s` >= ? AND `%s` <= ?", field, field))
+					values = append(values, rangeSlice[0], rangeSlice[1])
+				} else {
+					return fmt.Errorf("invalid range format for field %s", field)
+				}
+			} else {
+				// Single value
+				whereConditions = append(whereConditions, fmt.Sprintf("`%s` = ?", field))
+				values = append(values, value)
+			}
+		}
+
+		// Build the WHERE clause
+		if len(whereConditions) > 0 {
+			query = fmt.Sprintf("SELECT * FROM %s WHERE %s",
+				CurrentTable, strings.Join(whereConditions, " AND "))
+		} else {
+			// No conditions, get all
+			query = fmt.Sprintf("SELECT * FROM %s", CurrentTable)
+		}
 	}
 
 	// Execute query
@@ -219,11 +233,12 @@ func HandleGet(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 
 	if useJsonOutput {
 		// Colorized JSON output
-		if _, ok := args["id"]; ok && len(results) == 1 && !isArrayOrRange(args["id"]) {
-			// Single result
+		// Special case for single ID lookup for backward compatibility
+		if id, ok := args["id"]; ok && len(args) == 1 && !isArrayOrRange(id) && len(results) == 1 {
+			// Single result by ID
 			fmt.Printf("Record: %s\n", ColorJSON(results[0]))
 		} else {
-			// Multiple results
+			// Multiple results or non-ID query
 			fmt.Printf("Records: %s\n", ColorJSON(results))
 		}
 	} else {
@@ -240,68 +255,146 @@ func HandleUpdate(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 		return fmt.Errorf("no table selected")
 	}
 
-	if args == nil || args["id"] == nil {
-		return fmt.Errorf("UPDATE requires an id field")
+	if args == nil || len(args) == 0 {
+		return fmt.Errorf("UPDATE requires fields to update and filter conditions")
 	}
 
-	id := args["id"]
-	delete(args, "id") // Remove id from fields to update
-
-	if len(args) == 0 {
-		return fmt.Errorf("UPDATE requires fields to update")
-	}
-
-	// Ensure columns exist
-	if err := ensureColumns(db, args); err != nil {
+	// Get existing columns to differentiate between filter and update columns
+	existingCols, err := getColumns(db)
+	if err != nil {
 		return err
 	}
 
-	// Build query
-	var setStatements []string
-	var values []any
+	// Create maps for filter fields and update fields
+	filterFields := make(map[string]any)
+	updateFields := make(map[string]any)
 
+	// First check: if there's only one field and it's an existing column with value as array/range, it's a filter
+	if len(args) == 1 {
+		for k, v := range args {
+			if isArrayOrRange(v) {
+				for _, col := range existingCols {
+					if k == col {
+						return fmt.Errorf("UPDATE requires fields to update (filter only provided)")
+					}
+				}
+			}
+		}
+	}
+
+	// Determine which fields are for filtering and which are for updating
 	for k, v := range args {
-		setStatements = append(setStatements, fmt.Sprintf("`%s` = ?", k))
-		values = append(values, v)
-	}
-
-	var whereClause string
-	var idValues []any
-
-	// Handle different ID types
-	if idSlice, ok := id.([]any); ok {
-		// Multiple IDs
-		placeholders := make([]string, len(idSlice))
-		for i, v := range idSlice {
-			placeholders[i] = "?"
-			idValues = append(idValues, v)
+		// Special handling for id field - always a filter
+		if k == "id" {
+			filterFields[k] = v
+			continue
 		}
-		whereClause = fmt.Sprintf("id IN (%s)", strings.Join(placeholders, ","))
-	} else if idMap, ok := id.(map[string]any); ok {
-		// Range query
-		if rangeSlice, ok := idMap["range"].([]int); ok && len(rangeSlice) == 2 {
-			whereClause = "id >= ? AND id <= ?"
-			idValues = append(idValues, rangeSlice[0], rangeSlice[1])
+
+		fieldExists := false
+		for _, col := range existingCols {
+			if k == col {
+				fieldExists = true
+				break
+			}
+		}
+
+		// If field exists and value is array/range, it's a filter
+		// Otherwise it's an update field (this includes new fields)
+		if fieldExists && isArrayOrRange(v) {
+			filterFields[k] = v
 		} else {
-			return fmt.Errorf("invalid range format")
+			updateFields[k] = v
 		}
-	} else {
-		// Single ID
-		whereClause = "id = ?"
-		idValues = append(idValues, id)
 	}
 
-	// Combine values
-	values = append(values, idValues...)
+	// If no update fields, return error
+	if len(updateFields) == 0 {
+		return fmt.Errorf("UPDATE requires fields to update")
+	}
 
-	query := fmt.Sprintf("UPDATE %s SET %s WHERE %s",
-		CurrentTable,
-		strings.Join(setStatements, ", "),
-		whereClause,
-	)
+	// If no filter fields, use all records (with warning)
+	if len(filterFields) == 0 {
+		fmt.Println("Warning: No filter conditions specified. This will update ALL records in the table.")
+		fmt.Println("Do you want to continue? (y/N)")
+		response := ScanForConfirmation()
+		if strings.ToLower(response) != "y" {
+			return fmt.Errorf("operation cancelled")
+		}
+	}
+
+	// Ensure columns exist for update fields
+	if err := ensureColumns(db, updateFields); err != nil {
+		return err
+	}
+
+	// Build SET clause
+	var setStatements []string
+	var setValues []any
+
+	for k, v := range updateFields {
+		setStatements = append(setStatements, fmt.Sprintf("`%s` = ?", k))
+		setValues = append(setValues, v)
+	}
+
+	// Build WHERE clause based on filter fields
+	var whereClause string
+	var whereValues []any
+
+	if len(filterFields) > 0 {
+		var whereConditions []string
+
+		for field, value := range filterFields {
+			if sliceValue, ok := value.([]any); ok {
+				// Handle array of values (IN clause)
+				placeholders := make([]string, len(sliceValue))
+				for i, v := range sliceValue {
+					placeholders[i] = "?"
+					whereValues = append(whereValues, v)
+				}
+				whereConditions = append(whereConditions,
+					fmt.Sprintf("`%s` IN (%s)", field, strings.Join(placeholders, ",")))
+			} else if mapValue, ok := value.(map[string]any); ok {
+				// Handle range
+				if rangeSlice, ok := mapValue["range"].([]int); ok && len(rangeSlice) == 2 {
+					whereConditions = append(whereConditions,
+						fmt.Sprintf("`%s` >= ? AND `%s` <= ?", field, field))
+					whereValues = append(whereValues, rangeSlice[0], rangeSlice[1])
+				} else {
+					return fmt.Errorf("invalid range format for field %s", field)
+				}
+			} else {
+				// Single value
+				whereConditions = append(whereConditions, fmt.Sprintf("`%s` = ?", field))
+				whereValues = append(whereValues, value)
+			}
+		}
+
+		whereClause = strings.Join(whereConditions, " AND ")
+	}
+
+	// Build query
+	var query string
+	var allValues []any
+
+	// Add SET values
+	allValues = append(allValues, setValues...)
+
+	if whereClause != "" {
+		query = fmt.Sprintf("UPDATE %s SET %s WHERE %s",
+			CurrentTable,
+			strings.Join(setStatements, ", "),
+			whereClause)
+
+		// Add WHERE values
+		allValues = append(allValues, whereValues...)
+	} else {
+		query = fmt.Sprintf("UPDATE %s SET %s",
+			CurrentTable,
+			strings.Join(setStatements, ", "))
+	}
 
 	// Execute query
-	result, err := db.Exec(query, values...)
+	result, err := db.Exec(query, allValues...)
 	if err != nil {
 		return err
 	}
@@ -312,13 +405,20 @@ func HandleUpdate(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 	}
 
 	if affected == 0 {
-		return fmt.Errorf("record(s) not found")
+		return fmt.Errorf("no records matched the filter criteria")
 	}
 
 	if useJsonOutput {
 		// Select the updated records for JSON output
-		selectQuery := fmt.Sprintf("SELECT * FROM %s WHERE %s", CurrentTable, whereClause)
-		return handleQueryAndDisplayResults(db, selectQuery, idValues, isArrayOrRange(id), true)
+		var selectQuery string
+		if whereClause != "" {
+			selectQuery = fmt.Sprintf("SELECT * FROM %s WHERE %s", CurrentTable, whereClause)
+			return handleQueryAndDisplayResults(db, selectQuery, whereValues, len(filterFields) > 0, true)
+		} else {
+			selectQuery = fmt.Sprintf("SELECT * FROM %s LIMIT 10", CurrentTable)
+			fmt.Printf("Updated %d record(s). Showing first 10:\n", affected)
+			return handleQueryAndDisplayResults(db, selectQuery, nil, true, true)
+		}
 	} else {
 		// MySQL-style tabular output
 		fmt.Printf("Query OK, %d rows affected\n", affected)
@@ -512,4 +612,11 @@ func PrintTabularResults(columns []string, results []map[string]any) {
 
 	// Print row count
 	fmt.Printf("\n%d rows in set\n", len(results))
+}
+
+// Default function for user input confirmation
+var ScanForConfirmation = func() string {
+	var response string
+	fmt.Scanln(&response)
+	return response
 }
