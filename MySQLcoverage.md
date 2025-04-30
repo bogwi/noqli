@@ -21,8 +21,8 @@ This document tracks the mapping between standard MySQL commands and their NoQLi
 | `DELETE FROM table WHERE id BETWEEN 1 AND 10` | `DELETE {id: (1, 10)}` | ✅ |
 | `SELECT * FROM table ORDER BY col` | `GET {UP: 'col'}` | ✅ |
 | `SELECT * FROM table ORDER BY col DESC` | `GET {DOWN: 'col'}` | ✅ |
-| `SELECT * FROM table LIMIT 10` | `GET {LIM: 10}` | ❌ |
-| `SELECT * FROM table LIMIT 10 OFFSET 20` | `GET {LIM: 10, OFF: 20}` | ❌ |
+| `SELECT * FROM table LIMIT 10` | `GET {LIM: 10}` | ✅ |
+| `SELECT * FROM table LIMIT 10 OFFSET 20` | `GET {LIM: 10, OFF: 20}` | ✅ |
 | `SELECT * FROM table WHERE col LIKE '%pattern%'` | `GET {col: '%pattern%'}` | ❌ |
 | `SELECT COUNT(*) FROM table` | `GET {COUNT: '*'}` | ❌ |
 | `SELECT MAX(col) FROM table` | `GET {MAX: 'col'}` | ❌ |

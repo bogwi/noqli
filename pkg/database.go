@@ -165,6 +165,52 @@ func HandleGet(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 		}
 	}
 
+	// --- LIMIT/OFFSET support ---
+	var limitClause string
+	var limValue any
+	var offValue any
+	if args != nil {
+		if v, ok := args["LIM"]; ok {
+			limValue = v
+			delete(args, "LIM")
+		} else if v, ok := args["lim"]; ok {
+			limValue = v
+			delete(args, "lim")
+		}
+		if v, ok := args["OFF"]; ok {
+			offValue = v
+			delete(args, "OFF")
+		} else if v, ok := args["off"]; ok {
+			offValue = v
+			delete(args, "off")
+		}
+		// Validate limit and offset are non-negative integers
+		if limValue != nil {
+			if limInt, ok := toInt(limValue); ok {
+				if limInt < 0 {
+					return fmt.Errorf("LIMIT must be non-negative")
+				}
+			} else {
+				return fmt.Errorf("LIMIT must be an integer")
+			}
+		}
+		if offValue != nil {
+			if offInt, ok := toInt(offValue); ok {
+				if offInt < 0 {
+					return fmt.Errorf("OFFSET must be non-negative")
+				}
+			} else {
+				return fmt.Errorf("OFFSET must be an integer")
+			}
+		}
+		if limValue != nil {
+			limitClause = " LIMIT ?"
+			if offValue != nil {
+				limitClause += " OFFSET ?"
+			}
+		}
+	}
+
 	if len(args) == 0 {
 		// Get all records
 		query = fmt.Sprintf("SELECT * FROM %s", CurrentTable)
@@ -212,8 +258,17 @@ func HandleGet(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 	if orderByClause != "" {
 		query += orderByClause
 	}
+	// Add LIMIT/OFFSET clause if present
+	if limitClause != "" {
+		query += limitClause
+	}
 
 	// Execute query
+	if limValue != nil && offValue != nil {
+		values = append(values, limValue, offValue)
+	} else if limValue != nil {
+		values = append(values, limValue)
+	}
 	rows, err := db.Query(query, values...)
 	if err != nil {
 		return err
@@ -699,4 +754,22 @@ var ScanForConfirmation = func() string {
 	var response string
 	fmt.Scanln(&response)
 	return response
+}
+
+// Helper to convert any to int
+func toInt(v any) (int, bool) {
+	switch val := v.(type) {
+	case int:
+		return val, true
+	case int32:
+		return int(val), true
+	case int64:
+		return int(val), true
+	case float64:
+		return int(val), true
+	case float32:
+		return int(val), true
+	default:
+		return 0, false
+	}
 }
