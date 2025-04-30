@@ -1,0 +1,3086 @@
+=== RUN   TestComprehensiveUpdateOperations
+=== RUN   TestComprehensiveUpdateOperations/Update_Single_Record_by_ID
+[
+  {
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": "customer",
+    "email": "user1@example.com",
+    "global_field": null,
+    "id": 1,
+    "level": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": "New field with dynamic column creation",
+    "numeric_value": null,
+    "priority": "high",
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "updated-status",
+    "tags": "premium,support",
+    "updated_at": null
+  }
+]
+=== RUN   TestComprehensiveUpdateOperations/Update_Multiple_Records_by_ID_Array
+[
+  {
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": "batch-updated",
+    "email": "user2@example.com",
+    "global_field": null,
+    "id": 2,
+    "level": null,
+    "modified": 1,
+    "name": "User 2",
+    "new_status": null,
+    "notes": null,
+    "numeric_value": null,
+    "priority": "medium",
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "inactive",
+    "tags": "basic",
+    "updated_at": null
+  },
+  {
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": "batch-updated",
+    "email": "user3@example.com",
+    "global_field": null,
+    "id": 3,
+    "level": null,
+    "modified": 1,
+    "name": "User 3",
+    "new_status": null,
+    "notes": null,
+    "numeric_value": null,
+    "priority": "low",
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "pending",
+    "tags": "trial",
+    "updated_at": null
+  },
+  {
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": "batch-updated",
+    "email": "user4@example.com",
+    "global_field": null,
+    "id": 4,
+    "level": null,
+    "modified": 1,
+    "name": "User 4",
+    "new_status": null,
+    "notes": null,
+    "numeric_value": null,
+    "priority": "high",
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "active",
+    "tags": "internal,premium",
+    "updated_at": null
+  }
+]
+=== RUN   TestComprehensiveUpdateOperations/Update_Records_in_ID_Range
+[
+  {
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": "batch-updated",
+    "email": "user3@example.com",
+    "global_field": null,
+    "id": 3,
+    "level": null,
+    "modified": 1,
+    "name": "User 3",
+    "new_status": null,
+    "notes": null,
+    "numeric_value": null,
+    "priority": "low",
+    "processed": null,
+    "range_updated": "yes",
+    "score": null,
+    "status": "pending",
+    "tags": "trial",
+    "updated_at": null
+  },
+  {
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": "batch-updated",
+    "email": "user4@example.com",
+    "global_field": null,
+    "id": 4,
+    "level": null,
+    "modified": 1,
+    "name": "User 4",
+    "new_status": null,
+    "notes": null,
+    "numeric_value": null,
+    "priority": "high",
+    "processed": null,
+    "range_updated": "yes",
+    "score": null,
+    "status": "active",
+    "tags": "internal,premium",
+    "updated_at": null
+  },
+  {
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": "vendor",
+    "email": "user5@example.com",
+    "global_field": null,
+    "id": 5,
+    "level": null,
+    "modified": null,
+    "name": "User 5",
+    "new_status": null,
+    "notes": null,
+    "numeric_value": null,
+    "priority": "medium",
+    "processed": null,
+    "range_updated": "yes",
+    "score": null,
+    "status": "pending",
+    "tags": "basic,support",
+    "updated_at": null
+  }
+]
+=== RUN   TestComprehensiveUpdateOperations/Update_Records_Filtered_by_Any_Column
+[
+  {
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": "vendor",
+    "email": "filtered.user@example.com",
+    "global_field": null,
+    "id": 5,
+    "level": null,
+    "modified": null,
+    "name": "User 5",
+    "new_status": null,
+    "notes": null,
+    "numeric_value": null,
+    "priority": "medium",
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "approved",
+    "tags": "basic,support",
+    "updated_at": null
+  }
+]
+=== RUN   TestComprehensiveUpdateOperations/Update_Records_Filtered_by_Array_Values
+[
+  {
+    "boolean_value": null,
+    "bulk_update": "processed",
+    "category": "customer",
+    "email": "user1@example.com",
+    "global_field": null,
+    "id": 1,
+    "level": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "numeric_value": null,
+    "priority": "high",
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "active",
+    "tags": "premium,support",
+    "updated_at": null
+  },
+  {
+    "boolean_value": null,
+    "bulk_update": "processed",
+    "category": "customer",
+    "email": "user3@example.com",
+    "global_field": null,
+    "id": 3,
+    "level": null,
+    "modified": null,
+    "name": "User 3",
+    "new_status": null,
+    "notes": null,
+    "numeric_value": null,
+    "priority": "low",
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "pending",
+    "tags": "trial",
+    "updated_at": null
+  },
+  {
+    "boolean_value": null,
+    "bulk_update": "processed",
+    "category": "admin",
+    "email": "user4@example.com",
+    "global_field": null,
+    "id": 4,
+    "level": null,
+    "modified": null,
+    "name": "User 4",
+    "new_status": null,
+    "notes": null,
+    "numeric_value": null,
+    "priority": "high",
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "active",
+    "tags": "internal,premium",
+    "updated_at": null
+  },
+  {
+    "boolean_value": null,
+    "bulk_update": "processed",
+    "category": "vendor",
+    "email": "user5@example.com",
+    "global_field": null,
+    "id": 5,
+    "level": null,
+    "modified": null,
+    "name": "User 5",
+    "new_status": null,
+    "notes": null,
+    "numeric_value": null,
+    "priority": "medium",
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "pending",
+    "tags": "basic,support",
+    "updated_at": null
+  }
+]
+=== RUN   TestComprehensiveUpdateOperations/Update_All_Records
+Warning: No filter conditions specified. This will update ALL records in the table.
+Do you want to continue? (y/N)
+Updated 5 record(s). Showing first 10:
+[
+  {
+    "boolean_value": null,
+    "bulk_update": "processed",
+    "category": "customer",
+    "email": "user1@example.com",
+    "global_field": "applied-to-all",
+    "id": "1",
+    "level": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "numeric_value": null,
+    "priority": "high",
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "active",
+    "tags": "premium,support",
+    "updated_at": null
+  },
+  {
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": "vendor",
+    "email": "user2@example.com",
+    "global_field": "applied-to-all",
+    "id": "2",
+    "level": null,
+    "modified": null,
+    "name": "User 2",
+    "new_status": null,
+    "notes": null,
+    "numeric_value": null,
+    "priority": "medium",
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "inactive",
+    "tags": "basic",
+    "updated_at": null
+  },
+  {
+    "boolean_value": null,
+    "bulk_update": "processed",
+    "category": "customer",
+    "email": "user3@example.com",
+    "global_field": "applied-to-all",
+    "id": "3",
+    "level": null,
+    "modified": null,
+    "name": "User 3",
+    "new_status": null,
+    "notes": null,
+    "numeric_value": null,
+    "priority": "low",
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "pending",
+    "tags": "trial",
+    "updated_at": null
+  },
+  {
+    "boolean_value": null,
+    "bulk_update": "processed",
+    "category": "admin",
+    "email": "user4@example.com",
+    "global_field": "applied-to-all",
+    "id": "4",
+    "level": null,
+    "modified": null,
+    "name": "User 4",
+    "new_status": null,
+    "notes": null,
+    "numeric_value": null,
+    "priority": "high",
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "active",
+    "tags": "internal,premium",
+    "updated_at": null
+  },
+  {
+    "boolean_value": null,
+    "bulk_update": "processed",
+    "category": "vendor",
+    "email": "user5@example.com",
+    "global_field": "applied-to-all",
+    "id": "5",
+    "level": null,
+    "modified": null,
+    "name": "User 5",
+    "new_status": null,
+    "notes": null,
+    "numeric_value": null,
+    "priority": "medium",
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "pending",
+    "tags": "basic,support",
+    "updated_at": null
+  }
+]
+=== RUN   TestComprehensiveUpdateOperations/Update_Non-existent_ID
+=== RUN   TestComprehensiveUpdateOperations/Update_with_Filter-only
+=== RUN   TestComprehensiveUpdateOperations/Update_with_Empty_Args
+=== RUN   TestComprehensiveUpdateOperations/Update_with_Invalid_Range
+=== RUN   TestComprehensiveUpdateOperations/Update_with_Multiple_Field_Types
+[
+  {
+    "boolean_value": 1,
+    "bulk_update": "processed",
+    "category": "customer",
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": "applied-to-all",
+    "id": 1,
+    "level": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": 42,
+    "priority": "high",
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "complex-update",
+    "tags": "premium,support",
+    "updated_at": null
+  }
+]
+=== RUN   TestComprehensiveUpdateOperations/Mixed_Update_and_Filter_with_Same_Field
+[
+  {
+    "boolean_value": 1,
+    "bulk_update": "processed",
+    "category": "type-A",
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": "applied-to-all",
+    "id": 1,
+    "level": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": "special",
+    "notes": null,
+    "nullish": null,
+    "numeric_value": 42,
+    "priority": "high",
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "complex-update",
+    "tags": "premium,support",
+    "updated_at": null
+  },
+  {
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": "type-A",
+    "email": "user2@example.com",
+    "field": null,
+    "global_field": "applied-to-all",
+    "id": 2,
+    "level": null,
+    "modified": null,
+    "name": "User 2",
+    "new_status": "special",
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": "medium",
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "inactive",
+    "tags": "basic",
+    "updated_at": null
+  }
+]
+=== RUN   TestComprehensiveUpdateOperations/Complex_Multiple_Filters_and_Updates
+[
+  {
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": "customer",
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 1,
+    "level": "advanced",
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": "high",
+    "processed": 1,
+    "range_updated": null,
+    "score": 95.5,
+    "status": "active",
+    "tags": "premium,support",
+    "updated_at": "2023-08-15"
+  },
+  {
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": "admin",
+    "email": "user4@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 4,
+    "level": "advanced",
+    "modified": null,
+    "name": "User 4",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": "high",
+    "processed": 1,
+    "range_updated": null,
+    "score": 95.5,
+    "status": "active",
+    "tags": "internal,premium",
+    "updated_at": "2023-08-15"
+  }
+]
+--- PASS: TestComprehensiveUpdateOperations (0.05s)
+    --- PASS: TestComprehensiveUpdateOperations/Update_Single_Record_by_ID (0.00s)
+    --- PASS: TestComprehensiveUpdateOperations/Update_Multiple_Records_by_ID_Array (0.00s)
+    --- PASS: TestComprehensiveUpdateOperations/Update_Records_in_ID_Range (0.00s)
+    --- PASS: TestComprehensiveUpdateOperations/Update_Records_Filtered_by_Any_Column (0.01s)
+    --- PASS: TestComprehensiveUpdateOperations/Update_Records_Filtered_by_Array_Values (0.01s)
+    --- PASS: TestComprehensiveUpdateOperations/Update_All_Records (0.00s)
+    --- PASS: TestComprehensiveUpdateOperations/Update_Non-existent_ID (0.00s)
+    --- PASS: TestComprehensiveUpdateOperations/Update_with_Filter-only (0.00s)
+    --- PASS: TestComprehensiveUpdateOperations/Update_with_Empty_Args (0.00s)
+    --- PASS: TestComprehensiveUpdateOperations/Update_with_Invalid_Range (0.00s)
+    --- PASS: TestComprehensiveUpdateOperations/Update_with_Multiple_Field_Types (0.00s)
+    --- PASS: TestComprehensiveUpdateOperations/Mixed_Update_and_Filter_with_Same_Field (0.00s)
+    --- PASS: TestComprehensiveUpdateOperations/Complex_Multiple_Filters_and_Updates (0.01s)
+=== RUN   TestCreateEnvTestFile
+    create_env_test_file_test.go:13: .env.test file already exists
+--- SKIP: TestCreateEnvTestFile (0.00s)
+=== RUN   TestCreateCommand
+=== RUN   TestCreateCommand/Create_Simple_User
+Created: {
+  "email": "john@example.com",
+  "id": 1,
+  "name": "John Doe"
+}
+=== RUN   TestCreateCommand/Create_User_with_Multiple_Fields
+Created: {
+  "active": true,
+  "age": 30,
+  "email": "jane@example.com",
+  "id": 2,
+  "interests": "reading,coding",
+  "name": "Jane Smith"
+}
+=== RUN   TestCreateCommand/Create_Empty_User
+--- PASS: TestCreateCommand (0.02s)
+    --- PASS: TestCreateCommand/Create_Simple_User (0.00s)
+    --- PASS: TestCreateCommand/Create_User_with_Multiple_Fields (0.01s)
+    --- PASS: TestCreateCommand/Create_Empty_User (0.00s)
+=== RUN   TestDeleteCommand
+=== RUN   TestDeleteCommand/Delete_Single_User
+Deleted 1 record(s)
+=== RUN   TestDeleteCommand/Delete_Multiple_Users
+Deleted 2 record(s)
+=== RUN   TestDeleteCommand/Delete_Users_in_Range
+Deleted 2 record(s)
+=== RUN   TestDeleteCommand/Delete_Non-existent_User
+=== RUN   TestDeleteCommand/Delete_Without_ID
+--- PASS: TestDeleteCommand (0.02s)
+    --- PASS: TestDeleteCommand/Delete_Single_User (0.01s)
+    --- PASS: TestDeleteCommand/Delete_Multiple_Users (0.00s)
+    --- PASS: TestDeleteCommand/Delete_Users_in_Range (0.00s)
+    --- PASS: TestDeleteCommand/Delete_Non-existent_User (0.01s)
+    --- PASS: TestDeleteCommand/Delete_Without_ID (0.00s)
+=== RUN   TestDynamicSchema
+Created: {
+  "active": true,
+  "age": 25,
+  "email": "dynamic@example.com",
+  "id": 1,
+  "location": "New York",
+  "name": "Dynamic User"
+}
+--- PASS: TestDynamicSchema (0.01s)
+=== RUN   TestGetCommand
+=== RUN   TestGetCommand/Get_All_Users
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "1",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user2@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "2",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 2",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user3@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "3",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 3",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+=== RUN   TestGetCommand/Get_User_by_ID
+Record: {
+  "active": null,
+  "age": null,
+  "boolean_value": null,
+  "bulk_update": null,
+  "category": null,
+  "email": "user1@example.com",
+  "field": null,
+  "global_field": null,
+  "id": 1,
+  "interests": null,
+  "level": null,
+  "location": null,
+  "modified": null,
+  "name": "User 1",
+  "new_status": null,
+  "notes": null,
+  "nullish": null,
+  "numeric_value": null,
+  "priority": null,
+  "processed": null,
+  "range_updated": null,
+  "score": null,
+  "status": null,
+  "tags": null,
+  "updated_at": null
+}
+=== RUN   TestGetCommand/Get_Multiple_Users_by_ID
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 1,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user2@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 2,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 2",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+=== RUN   TestGetCommand/Get_Users_by_ID_Range
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 1,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user2@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 2,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 2",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user3@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 3,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 3",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+=== RUN   TestGetCommand/Get_Non-existent_User
+No records found
+=== RUN   TestGetCommand/Get_User_by_Email
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 1,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+=== RUN   TestGetCommand/Get_Multiple_Users_by_Email_Array
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 1,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user2@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 2,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 2",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+=== RUN   TestGetCommand/Get_Users_by_Multiple_Criteria
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 1,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+=== RUN   TestGetCommand/Get_Users_by_Non-existent_Email
+No records found
+=== RUN   TestGetCommand/Get_Users_Ordered_by_Name_Ascending_(UP)
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "1",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user2@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "2",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 2",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user3@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "3",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 3",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+    get_test.go:268: 
+        	Error Trace:	/Users/romanticsquid/_Code/__code/_GitHub/_prototypes/noqli/test/get_test.go:268
+        	Error:      	Not equal: 
+        	            	expected: 6
+        	            	actual  : 3
+        	Test:       	TestGetCommand/Get_Users_Ordered_by_Name_Ascending_(UP)
+        	Messages:   	Expected 6 records, got 3 for test: Get Users Ordered by Name Ascending (UP)
+=== RUN   TestGetCommand/Get_Users_Ordered_by_Name_Ascending_(Uppercase_UP)
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "1",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user2@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "2",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 2",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user3@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "3",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 3",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+    get_test.go:268: 
+        	Error Trace:	/Users/romanticsquid/_Code/__code/_GitHub/_prototypes/noqli/test/get_test.go:268
+        	Error:      	Not equal: 
+        	            	expected: 6
+        	            	actual  : 3
+        	Test:       	TestGetCommand/Get_Users_Ordered_by_Name_Ascending_(Uppercase_UP)
+        	Messages:   	Expected 6 records, got 3 for test: Get Users Ordered by Name Ascending (Uppercase UP)
+=== RUN   TestGetCommand/Get_Users_Ordered_by_Name_Descending_(DOWN)
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user3@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "3",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 3",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user2@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "2",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 2",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "1",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+    get_test.go:268: 
+        	Error Trace:	/Users/romanticsquid/_Code/__code/_GitHub/_prototypes/noqli/test/get_test.go:268
+        	Error:      	Not equal: 
+        	            	expected: 6
+        	            	actual  : 3
+        	Test:       	TestGetCommand/Get_Users_Ordered_by_Name_Descending_(DOWN)
+        	Messages:   	Expected 6 records, got 3 for test: Get Users Ordered by Name Descending (DOWN)
+=== RUN   TestGetCommand/Get_Users_Ordered_by_Name_Descending_(Uppercase_DOWN)
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user3@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "3",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 3",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user2@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "2",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 2",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "1",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+    get_test.go:268: 
+        	Error Trace:	/Users/romanticsquid/_Code/__code/_GitHub/_prototypes/noqli/test/get_test.go:268
+        	Error:      	Not equal: 
+        	            	expected: 6
+        	            	actual  : 3
+        	Test:       	TestGetCommand/Get_Users_Ordered_by_Name_Descending_(Uppercase_DOWN)
+        	Messages:   	Expected 6 records, got 3 for test: Get Users Ordered by Name Descending (Uppercase DOWN)
+=== RUN   TestGetCommand/Get_Users_Filtered_and_Ordered
+No records found
+    get_test.go:268: 
+        	Error Trace:	/Users/romanticsquid/_Code/__code/_GitHub/_prototypes/noqli/test/get_test.go:268
+        	Error:      	Not equal: 
+        	            	expected: 3
+        	            	actual  : 0
+        	Test:       	TestGetCommand/Get_Users_Filtered_and_Ordered
+        	Messages:   	Expected 3 records, got 0 for test: Get Users Filtered and Ordered
+=== RUN   TestGetCommand/LIKE_on_all_columns_(should_match_Alice)
+No records found
+    get_test.go:268: 
+        	Error Trace:	/Users/romanticsquid/_Code/__code/_GitHub/_prototypes/noqli/test/get_test.go:268
+        	Error:      	Not equal: 
+        	            	expected: 1
+        	            	actual  : 3
+        	Test:       	TestGetCommand/LIKE_on_all_columns_(should_match_Alice)
+        	Messages:   	Expected 1 records, got 3 for test: LIKE on all columns (should match Alice)
+=== RUN   TestGetCommand/LIKE_on_name_column_(should_match_Bob)
+No records found
+    get_test.go:268: 
+        	Error Trace:	/Users/romanticsquid/_Code/__code/_GitHub/_prototypes/noqli/test/get_test.go:268
+        	Error:      	Not equal: 
+        	            	expected: 1
+        	            	actual  : 3
+        	Test:       	TestGetCommand/LIKE_on_name_column_(should_match_Bob)
+        	Messages:   	Expected 1 records, got 3 for test: LIKE on name column (should match Bob)
+=== RUN   TestGetCommand/LIKE_on_email_column_(should_match_all_@example.com)
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 1,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user2@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 2,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 2",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user3@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 3,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 3",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+    get_test.go:268: 
+        	Error Trace:	/Users/romanticsquid/_Code/__code/_GitHub/_prototypes/noqli/test/get_test.go:268
+        	Error:      	Not equal: 
+        	            	expected: 6
+        	            	actual  : 3
+        	Test:       	TestGetCommand/LIKE_on_email_column_(should_match_all_@example.com)
+        	Messages:   	Expected 6 records, got 3 for test: LIKE on email column (should match all @example.com)
+=== RUN   TestGetCommand/LIKE_with_LIM_(should_match_only_1)
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 1,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+    get_test.go:268: 
+        	Error Trace:	/Users/romanticsquid/_Code/__code/_GitHub/_prototypes/noqli/test/get_test.go:268
+        	Error:      	Not equal: 
+        	            	expected: 1
+        	            	actual  : 3
+        	Test:       	TestGetCommand/LIKE_with_LIM_(should_match_only_1)
+        	Messages:   	Expected 1 records, got 3 for test: LIKE with LIM (should match only 1)
+=== RUN   TestGetCommand/LIKE_with_LIM_and_OFF_(should_match_1,_offset_2)
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user3@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 3,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 3",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+    get_test.go:268: 
+        	Error Trace:	/Users/romanticsquid/_Code/__code/_GitHub/_prototypes/noqli/test/get_test.go:268
+        	Error:      	Not equal: 
+        	            	expected: 1
+        	            	actual  : 3
+        	Test:       	TestGetCommand/LIKE_with_LIM_and_OFF_(should_match_1,_offset_2)
+        	Messages:   	Expected 1 records, got 3 for test: LIKE with LIM and OFF (should match 1, offset 2)
+=== RUN   TestGetCommand/LIKE_with_no_matches
+No records found
+    get_test.go:268: 
+        	Error Trace:	/Users/romanticsquid/_Code/__code/_GitHub/_prototypes/noqli/test/get_test.go:268
+        	Error:      	Not equal: 
+        	            	expected: 0
+        	            	actual  : 3
+        	Test:       	TestGetCommand/LIKE_with_no_matches
+        	Messages:   	Expected 0 records, got 3 for test: LIKE with no matches
+=== RUN   TestGetCommand/LIKE_with_other_filter_(name_+_LIKE_email)
+No records found
+    get_test.go:268: 
+        	Error Trace:	/Users/romanticsquid/_Code/__code/_GitHub/_prototypes/noqli/test/get_test.go:268
+        	Error:      	Not equal: 
+        	            	expected: 1
+        	            	actual  : 0
+        	Test:       	TestGetCommand/LIKE_with_other_filter_(name_+_LIKE_email)
+        	Messages:   	Expected 1 records, got 0 for test: LIKE with other filter (name + LIKE email)
+=== RUN   TestGetCommand/LIKE_with_case_insensitivity_(should_match_alice@example.com)
+No records found
+    get_test.go:268: 
+        	Error Trace:	/Users/romanticsquid/_Code/__code/_GitHub/_prototypes/noqli/test/get_test.go:268
+        	Error:      	Not equal: 
+        	            	expected: 1
+        	            	actual  : 3
+        	Test:       	TestGetCommand/LIKE_with_case_insensitivity_(should_match_alice@example.com)
+        	Messages:   	Expected 1 records, got 3 for test: LIKE with case insensitivity (should match alice@example.com)
+--- FAIL: TestGetCommand (0.08s)
+    --- PASS: TestGetCommand/Get_All_Users (0.00s)
+    --- PASS: TestGetCommand/Get_User_by_ID (0.00s)
+    --- PASS: TestGetCommand/Get_Multiple_Users_by_ID (0.00s)
+    --- PASS: TestGetCommand/Get_Users_by_ID_Range (0.00s)
+    --- PASS: TestGetCommand/Get_Non-existent_User (0.00s)
+    --- PASS: TestGetCommand/Get_User_by_Email (0.00s)
+    --- PASS: TestGetCommand/Get_Multiple_Users_by_Email_Array (0.00s)
+    --- PASS: TestGetCommand/Get_Users_by_Multiple_Criteria (0.00s)
+    --- PASS: TestGetCommand/Get_Users_by_Non-existent_Email (0.00s)
+    --- FAIL: TestGetCommand/Get_Users_Ordered_by_Name_Ascending_(UP) (0.00s)
+    --- FAIL: TestGetCommand/Get_Users_Ordered_by_Name_Ascending_(Uppercase_UP) (0.00s)
+    --- FAIL: TestGetCommand/Get_Users_Ordered_by_Name_Descending_(DOWN) (0.00s)
+    --- FAIL: TestGetCommand/Get_Users_Ordered_by_Name_Descending_(Uppercase_DOWN) (0.00s)
+    --- FAIL: TestGetCommand/Get_Users_Filtered_and_Ordered (0.00s)
+    --- FAIL: TestGetCommand/LIKE_on_all_columns_(should_match_Alice) (0.00s)
+    --- FAIL: TestGetCommand/LIKE_on_name_column_(should_match_Bob) (0.00s)
+    --- FAIL: TestGetCommand/LIKE_on_email_column_(should_match_all_@example.com) (0.00s)
+    --- FAIL: TestGetCommand/LIKE_with_LIM_(should_match_only_1) (0.00s)
+    --- FAIL: TestGetCommand/LIKE_with_LIM_and_OFF_(should_match_1,_offset_2) (0.00s)
+    --- FAIL: TestGetCommand/LIKE_with_no_matches (0.00s)
+    --- FAIL: TestGetCommand/LIKE_with_other_filter_(name_+_LIKE_email) (0.00s)
+    --- FAIL: TestGetCommand/LIKE_with_case_insensitivity_(should_match_alice@example.com) (0.00s)
+=== RUN   TestGetCommandLimitOffset
+=== RUN   TestGetCommandLimitOffset/Limit_3
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 1,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user2@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 2,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 2",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user3@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 3,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 3",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+=== RUN   TestGetCommandLimitOffset/Offset_2,_Limit_4
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user3@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 3,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 3",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user1@ex.com",
+    "field": null,
+    "global_field": null,
+    "id": 4,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user10@ex.com",
+    "field": null,
+    "global_field": null,
+    "id": 13,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User10",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user2@ex.com",
+    "field": null,
+    "global_field": null,
+    "id": 5,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User2",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+=== RUN   TestGetCommandLimitOffset/Limit_exceeds_row_count
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 1,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user2@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 2,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 2",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user3@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 3,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 3",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user1@ex.com",
+    "field": null,
+    "global_field": null,
+    "id": 4,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user2@ex.com",
+    "field": null,
+    "global_field": null,
+    "id": 5,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User2",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user3@ex.com",
+    "field": null,
+    "global_field": null,
+    "id": 6,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User3",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user4@ex.com",
+    "field": null,
+    "global_field": null,
+    "id": 7,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User4",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user5@ex.com",
+    "field": null,
+    "global_field": null,
+    "id": 8,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User5",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user6@ex.com",
+    "field": null,
+    "global_field": null,
+    "id": 9,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User6",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user7@ex.com",
+    "field": null,
+    "global_field": null,
+    "id": 10,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User7",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user8@ex.com",
+    "field": null,
+    "global_field": null,
+    "id": 11,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User8",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user9@ex.com",
+    "field": null,
+    "global_field": null,
+    "id": 12,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User9",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user10@ex.com",
+    "field": null,
+    "global_field": null,
+    "id": 13,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User10",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+=== RUN   TestGetCommandLimitOffset/Offset_beyond_row_count
+No records found
+=== RUN   TestGetCommandLimitOffset/Limit_0
+No records found
+=== RUN   TestGetCommandLimitOffset/Negative_limit
+=== RUN   TestGetCommandLimitOffset/Negative_offset
+--- PASS: TestGetCommandLimitOffset (0.01s)
+    --- PASS: TestGetCommandLimitOffset/Limit_3 (0.00s)
+    --- PASS: TestGetCommandLimitOffset/Offset_2,_Limit_4 (0.00s)
+    --- PASS: TestGetCommandLimitOffset/Limit_exceeds_row_count (0.00s)
+    --- PASS: TestGetCommandLimitOffset/Offset_beyond_row_count (0.00s)
+    --- PASS: TestGetCommandLimitOffset/Limit_0 (0.00s)
+    --- PASS: TestGetCommandLimitOffset/Negative_limit (0.00s)
+    --- PASS: TestGetCommandLimitOffset/Negative_offset (0.00s)
+=== RUN   TestHandleCommand
+Created: {
+  "email": "test@example.com",
+  "id": 1,
+  "name": "Test User"
+}
+=== RUN   TestHandleCommand/Valid_CREATE
+Created: {
+  "email": "test@example.com",
+  "id": 2,
+  "name": "Test User"
+}
+=== RUN   TestHandleCommand/Valid_GET_All
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "test@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "1",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "Test User",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "test@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "2",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "Test User",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+=== RUN   TestHandleCommand/Valid_GET_By_ID
+Record: {
+  "active": null,
+  "age": null,
+  "boolean_value": null,
+  "bulk_update": null,
+  "category": null,
+  "email": "test@example.com",
+  "field": null,
+  "global_field": null,
+  "id": 1,
+  "interests": null,
+  "level": null,
+  "location": null,
+  "modified": null,
+  "name": "Test User",
+  "new_status": null,
+  "notes": null,
+  "nullish": null,
+  "numeric_value": null,
+  "priority": null,
+  "processed": null,
+  "range_updated": null,
+  "score": null,
+  "status": null,
+  "tags": null,
+  "updated_at": null
+}
+=== RUN   TestHandleCommand/Valid_UPDATE
+[
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "test@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 1,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "Updated Name",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+=== RUN   TestHandleCommand/Valid_DELETE
+Deleted 1 record(s)
+=== RUN   TestHandleCommand/Invalid_Command
+=== RUN   TestHandleCommand/Invalid_Syntax
+--- PASS: TestHandleCommand (0.01s)
+    --- PASS: TestHandleCommand/Valid_CREATE (0.00s)
+    --- PASS: TestHandleCommand/Valid_GET_All (0.00s)
+    --- PASS: TestHandleCommand/Valid_GET_By_ID (0.00s)
+    --- PASS: TestHandleCommand/Valid_UPDATE (0.00s)
+    --- PASS: TestHandleCommand/Valid_DELETE (0.00s)
+    --- PASS: TestHandleCommand/Invalid_Command (0.00s)
+    --- PASS: TestHandleCommand/Invalid_Syntax (0.00s)
+=== RUN   TestOrderingCommands
+=== RUN   TestOrderingCommands/Ascending_Order_with_'up'
+
+| id | name    | email               | status | category | priority | tags  | numeric_value | boolean_value | processed | level | updated_at | score | global_field | bulk_update | new_status | range_updated | notes | modified | field | nullish | age   | active | interests | location |
++----+---------+---------------------+--------+----------+----------+-------+---------------+---------------+-----------+-------+------------+-------+--------------+-------------+------------+---------------+-------+----------+-------+---------+-------+--------+-----------+----------+
+| 2  | Alice   | alice@example.com   | <nil>  | <nil>    | <nil>    | <nil> | <nil>         | <nil>         | <nil>     | <nil> | <nil>      | <nil> | <nil>        | <nil>       | <nil>      | <nil>         | <nil> | <nil>    | <nil> | <nil>   | <nil> | <nil>  | <nil>     | <nil>    |
+| 3  | Bob     | bob@example.com     | <nil>  | <nil>    | <nil>    | <nil> | <nil>         | <nil>         | <nil>     | <nil> | <nil>      | <nil> | <nil>        | <nil>       | <nil>      | <nil>         | <nil> | <nil>    | <nil> | <nil>   | <nil> | <nil>  | <nil>     | <nil>    |
+| 1  | Charlie | charlie@example.com | <nil>  | <nil>    | <nil>    | <nil> | <nil>         | <nil>         | <nil>     | <nil> | <nil>      | <nil> | <nil>        | <nil>       | <nil>      | <nil>         | <nil> | <nil>    | <nil> | <nil>   | <nil> | <nil>  | <nil>     | <nil>    |
+| 4  | David   | david@example.com   | <nil>  | <nil>    | <nil>    | <nil> | <nil>         | <nil>         | <nil>     | <nil> | <nil>      | <nil> | <nil>        | <nil>       | <nil>      | <nil>         | <nil> | <nil>    | <nil> | <nil>   | <nil> | <nil>  | <nil>     | <nil>    |
+| 5  | Eve     | eve@example.com     | <nil>  | <nil>    | <nil>    | <nil> | <nil>         | <nil>         | <nil>     | <nil> | <nil>      | <nil> | <nil>        | <nil>       | <nil>      | <nil>         | <nil> | <nil>    | <nil> | <nil>   | <nil> | <nil>  | <nil>     | <nil>    |
+
+5 rows in set
+=== RUN   TestOrderingCommands/Descending_Order_with_'down'
+
+| id | name    | email               | status | category | priority | tags  | numeric_value | boolean_value | processed | level | updated_at | score | global_field | bulk_update | new_status | range_updated | notes | modified | field | nullish | age   | active | interests | location |
++----+---------+---------------------+--------+----------+----------+-------+---------------+---------------+-----------+-------+------------+-------+--------------+-------------+------------+---------------+-------+----------+-------+---------+-------+--------+-----------+----------+
+| 5  | Eve     | eve@example.com     | <nil>  | <nil>    | <nil>    | <nil> | <nil>         | <nil>         | <nil>     | <nil> | <nil>      | <nil> | <nil>        | <nil>       | <nil>      | <nil>         | <nil> | <nil>    | <nil> | <nil>   | <nil> | <nil>  | <nil>     | <nil>    |
+| 4  | David   | david@example.com   | <nil>  | <nil>    | <nil>    | <nil> | <nil>         | <nil>         | <nil>     | <nil> | <nil>      | <nil> | <nil>        | <nil>       | <nil>      | <nil>         | <nil> | <nil>    | <nil> | <nil>   | <nil> | <nil>  | <nil>     | <nil>    |
+| 1  | Charlie | charlie@example.com | <nil>  | <nil>    | <nil>    | <nil> | <nil>         | <nil>         | <nil>     | <nil> | <nil>      | <nil> | <nil>        | <nil>       | <nil>      | <nil>         | <nil> | <nil>    | <nil> | <nil>   | <nil> | <nil>  | <nil>     | <nil>    |
+| 3  | Bob     | bob@example.com     | <nil>  | <nil>    | <nil>    | <nil> | <nil>         | <nil>         | <nil>     | <nil> | <nil>      | <nil> | <nil>        | <nil>       | <nil>      | <nil>         | <nil> | <nil>    | <nil> | <nil>   | <nil> | <nil>  | <nil>     | <nil>    |
+| 2  | Alice   | alice@example.com   | <nil>  | <nil>    | <nil>    | <nil> | <nil>         | <nil>         | <nil>     | <nil> | <nil>      | <nil> | <nil>        | <nil>       | <nil>      | <nil>         | <nil> | <nil>    | <nil> | <nil>   | <nil> | <nil>  | <nil>     | <nil>    |
+
+5 rows in set
+=== RUN   TestOrderingCommands/Ascending_Order_with_'UP'
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "alice@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "2",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "Alice",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "bob@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "3",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "Bob",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "charlie@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "1",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "Charlie",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "david@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "4",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "David",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "eve@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "5",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "Eve",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+=== RUN   TestOrderingCommands/Descending_Order_with_'DOWN'
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "eve@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "5",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "Eve",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "david@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "4",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "David",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "charlie@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "1",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "Charlie",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "bob@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "3",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "Bob",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "alice@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "2",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "Alice",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+=== RUN   TestOrderingCommands/Filtering_and_Ordering_Combined
+
+| id | name    | email               | status | category | priority | tags  | numeric_value | boolean_value | processed | level | updated_at | score | global_field | bulk_update | new_status | range_updated | notes | modified | field | nullish | age   | active | interests | location |
++----+---------+---------------------+--------+----------+----------+-------+---------------+---------------+-----------+-------+------------+-------+--------------+-------------+------------+---------------+-------+----------+-------+---------+-------+--------+-----------+----------+
+| 2  | Alice   | alice@example.com   | <nil>  | <nil>    | <nil>    | <nil> | <nil>         | <nil>         | <nil>     | <nil> | <nil>      | <nil> | <nil>        | <nil>       | <nil>      | <nil>         | <nil> | <nil>    | <nil> | <nil>   | <nil> | <nil>  | <nil>     | <nil>    |
+| 3  | Bob     | bob@example.com     | <nil>  | <nil>    | <nil>    | <nil> | <nil>         | <nil>         | <nil>     | <nil> | <nil>      | <nil> | <nil>        | <nil>       | <nil>      | <nil>         | <nil> | <nil>    | <nil> | <nil>   | <nil> | <nil>  | <nil>     | <nil>    |
+| 1  | Charlie | charlie@example.com | <nil>  | <nil>    | <nil>    | <nil> | <nil>         | <nil>         | <nil>     | <nil> | <nil>      | <nil> | <nil>        | <nil>       | <nil>      | <nil>         | <nil> | <nil>    | <nil> | <nil>   | <nil> | <nil>  | <nil>     | <nil>    |
+
+3 rows in set
+--- PASS: TestOrderingCommands (0.01s)
+    --- PASS: TestOrderingCommands/Ascending_Order_with_'up' (0.00s)
+    --- PASS: TestOrderingCommands/Descending_Order_with_'down' (0.00s)
+    --- PASS: TestOrderingCommands/Ascending_Order_with_'UP' (0.00s)
+    --- PASS: TestOrderingCommands/Descending_Order_with_'DOWN' (0.00s)
+    --- PASS: TestOrderingCommands/Filtering_and_Ordering_Combined (0.00s)
+=== RUN   TestOutputFormats
+Created: {
+  "email": "format@example.com",
+  "id": 1,
+  "name": "Format Test User"
+}
+Records: [
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "format@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "1",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "Format Test User",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+
+| id | name             | email              | status | category | priority | tags  | numeric_value | boolean_value | processed | level | updated_at | score | global_field | bulk_update | new_status | range_updated | notes | modified | field | nullish | age   | active | interests | location |
++----+------------------+--------------------+--------+----------+----------+-------+---------------+---------------+-----------+-------+------------+-------+--------------+-------------+------------+---------------+-------+----------+-------+---------+-------+--------+-----------+----------+
+| 1  | Format Test User | format@example.com | <nil>  | <nil>    | <nil>    | <nil> | <nil>         | <nil>         | <nil>     | <nil> | <nil>      | <nil> | <nil>        | <nil>       | <nil>      | <nil>         | <nil> | <nil>    | <nil> | <nil>   | <nil> | <nil>  | <nil>     | <nil>    |
+
+1 rows in set
+[
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "format@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 1,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "Updated Format User",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+Query OK, 1 rows affected
+Deleted 1 record(s)
+--- PASS: TestOutputFormats (0.01s)
+=== RUN   TestParserFunctions
+=== RUN   TestParserFunctions/Parse_Simple_ID
+=== RUN   TestParserFunctions/Parse_Simple_Object
+=== RUN   TestParserFunctions/Parse_Array_Values
+=== RUN   TestParserFunctions/Parse_Range
+=== RUN   TestParserFunctions/Parse_Multiple_Field_Assignment
+=== RUN   TestParserFunctions/Parse_Invalid_Input
+--- PASS: TestParserFunctions (0.00s)
+    --- PASS: TestParserFunctions/Parse_Simple_ID (0.00s)
+    --- PASS: TestParserFunctions/Parse_Simple_Object (0.00s)
+    --- PASS: TestParserFunctions/Parse_Array_Values (0.00s)
+    --- PASS: TestParserFunctions/Parse_Range (0.00s)
+    --- PASS: TestParserFunctions/Parse_Multiple_Field_Assignment (0.00s)
+    --- PASS: TestParserFunctions/Parse_Invalid_Input (0.00s)
+=== RUN   TestUpdateCommand
+=== RUN   TestUpdateCommand/Update_Single_User_by_ID
+[
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "updated@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 1,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "Updated Name",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated_at": null
+  }
+]
+=== RUN   TestUpdateCommand/Update_Multiple_Users_by_ID_Array
+[
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user2@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 2,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 2",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "inactive",
+    "tags": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user3@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 3,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 3",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "inactive",
+    "tags": null,
+    "updated_at": null
+  }
+]
+=== RUN   TestUpdateCommand/Update_Users_in_ID_Range
+[
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 1,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated": "1",
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user2@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 2,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 2",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated": "1",
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user3@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 3,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 3",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated": "1",
+    "updated_at": null
+  }
+]
+=== RUN   TestUpdateCommand/Update_Non-existent_User
+=== RUN   TestUpdateCommand/Update_All_Users_with_Email_Field
+Warning: No filter conditions specified. This will update ALL records in the table.
+Do you want to continue? (y/N)
+Updated 3 record(s). Showing first 10:
+[
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "updated@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "1",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "updated@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "2",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 2",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "updated@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "3",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 3",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated": null,
+    "updated_at": null
+  }
+]
+=== RUN   TestUpdateCommand/Update_Users_Filtered_by_Email_Array
+[
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 1,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "batch-updated",
+    "tags": null,
+    "updated": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user2@example.com",
+    "field": null,
+    "global_field": null,
+    "id": 2,
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 2",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "score": null,
+    "status": "batch-updated",
+    "tags": null,
+    "updated": null,
+    "updated_at": null
+  }
+]
+=== RUN   TestUpdateCommand/Update_with_Only_Filter
+=== RUN   TestUpdateCommand/Update_with_No_Filters_(All_Records)
+Warning: No filter conditions specified. This will update ALL records in the table.
+Do you want to continue? (y/N)
+Updated 3 record(s). Showing first 10:
+[
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user1@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "1",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 1",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "role": "user",
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user2@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "2",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 2",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "role": "user",
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated": null,
+    "updated_at": null
+  },
+  {
+    "active": null,
+    "age": null,
+    "boolean_value": null,
+    "bulk_update": null,
+    "category": null,
+    "email": "user3@example.com",
+    "field": null,
+    "global_field": null,
+    "id": "3",
+    "interests": null,
+    "level": null,
+    "location": null,
+    "modified": null,
+    "name": "User 3",
+    "new_status": null,
+    "notes": null,
+    "nullish": null,
+    "numeric_value": null,
+    "priority": null,
+    "processed": null,
+    "range_updated": null,
+    "role": "user",
+    "score": null,
+    "status": null,
+    "tags": null,
+    "updated": null,
+    "updated_at": null
+  }
+]
+--- PASS: TestUpdateCommand (0.04s)
+    --- PASS: TestUpdateCommand/Update_Single_User_by_ID (0.00s)
+    --- PASS: TestUpdateCommand/Update_Multiple_Users_by_ID_Array (0.00s)
+    --- PASS: TestUpdateCommand/Update_Users_in_ID_Range (0.01s)
+    --- PASS: TestUpdateCommand/Update_Non-existent_User (0.00s)
+    --- PASS: TestUpdateCommand/Update_All_Users_with_Email_Field (0.00s)
+    --- PASS: TestUpdateCommand/Update_Users_Filtered_by_Email_Array (0.00s)
+    --- PASS: TestUpdateCommand/Update_with_Only_Filter (0.00s)
+    --- PASS: TestUpdateCommand/Update_with_No_Filters_(All_Records) (0.01s)
+FAIL
+FAIL	github.com/bogwi/noqli/test	0.436s
+FAIL

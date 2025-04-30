@@ -23,7 +23,7 @@ This document tracks the mapping between standard MySQL commands and their NoQLi
 | `SELECT * FROM table ORDER BY col DESC` | `GET {DOWN: 'col'}` | ✅ |
 | `SELECT * FROM table LIMIT 10` | `GET {LIM: 10}` | ✅ |
 | `SELECT * FROM table LIMIT 10 OFFSET 20` | `GET {LIM: 10, OFF: 20}` | ✅ |
-| `SELECT * FROM table WHERE col LIKE '%pattern%'` | `GET {col: '%pattern%'}` | ❌ |
+| `SELECT * FROM table WHERE col LIKE '%pattern%'` | `GET {LIKE: 'pattern'}` | ✅ |
 | `SELECT COUNT(*) FROM table` | `GET {COUNT: '*'}` | ❌ |
 | `SELECT MAX(col) FROM table` | `GET {MAX: 'col'}` | ❌ |
 | `SELECT AVG(col) FROM table` | `GET {AVG: 'col'}` | ❌ |
@@ -93,7 +93,7 @@ For the unsupported MySQL commands, here are proposed NoQLi syntax extensions th
 
 2. **Pattern Matching**:
    ```
-   GET {column: '%pattern%'}  // LIKE pattern matching
+   GET {LIKE: 'pattern'}  // LIKE pattern matching
    ```
 
 3. **Aggregation Functions**:
@@ -146,11 +146,10 @@ For the unsupported MySQL commands, here are proposed NoQLi syntax extensions th
 
 Based on common MySQL usage patterns, here's a suggested implementation priority for the missing commands:
 
-1. Ordering, limiting, and pattern matching
-2. Aggregation functions
-3. Schema inspection
-4. Joins for basic relationship queries
-5. Transactions
-6. Indexes and performance optimization
+1. Aggregation functions
+2. Schema inspection
+3. Joins for basic relationship queries
+4. Transactions
+5. Indexes and performance optimization
 
-These extensions would significantly enhance NoQLi's coverage of common MySQL functionality while maintaining its simplified, intuitive syntax philosophy. 
+These extensions would significantly enhance NoQLi's coverage of common MySQL functionality while maintaining its simplified, intuitive syntax philosophy.

@@ -211,6 +211,18 @@ func HandleGet(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 		}
 	}
 
+	// --- LIKE support ---
+	var likeValue any
+	if args != nil {
+		if v, ok := args["LIKE"]; ok {
+			likeValue = v
+			delete(args, "LIKE")
+		} else if v, ok := args["like"]; ok {
+			likeValue = v
+			delete(args, "like")
+		}
+	}
+
 	if len(args) == 0 {
 		// Get all records
 		query = fmt.Sprintf("SELECT * FROM %s", CurrentTable)
@@ -251,6 +263,42 @@ func HandleGet(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 		} else {
 			// No conditions, get all
 			query = fmt.Sprintf("SELECT * FROM %s", CurrentTable)
+		}
+	}
+
+	// Add LIKE condition if present
+	if likeValue != nil {
+		// Find all columns if not specified
+		columns, err := getColumns(db)
+		if err != nil {
+			return err
+		}
+
+		if len(columns) == 0 {
+			return fmt.Errorf("no columns found in table")
+		}
+
+		// Build LIKE conditions for all text-like columns
+		var likeConditions []string
+
+		// Convert likeValue to string and add wildcards if not already present
+		likeStr := fmt.Sprintf("%v", likeValue)
+		if !strings.Contains(likeStr, "%") {
+			likeStr = "%" + likeStr + "%"
+		}
+
+		for _, col := range columns {
+			likeConditions = append(likeConditions, fmt.Sprintf("`%s` LIKE ?", col))
+			values = append(values, likeStr)
+		}
+
+		likeClause := fmt.Sprintf("(%s)", strings.Join(likeConditions, " OR "))
+
+		// Append to existing query
+		if strings.Contains(query, "WHERE") {
+			query = fmt.Sprintf("%s AND %s", query, likeClause)
+		} else {
+			query = fmt.Sprintf("%s WHERE %s", query, likeClause)
 		}
 	}
 
