@@ -233,13 +233,26 @@ func HandleGet(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 		for field, value := range args {
 			if sliceValue, ok := value.([]any); ok {
 				// Handle array of values (IN clause)
-				placeholders := make([]string, len(sliceValue))
-				for i, v := range sliceValue {
-					placeholders[i] = "?"
-					values = append(values, v)
+				if len(sliceValue) == 0 {
+					// Handle empty array
+					whereConditions = append(whereConditions, "0=1") // No results should match
+				} else {
+					placeholders := make([]string, len(sliceValue))
+					for i, v := range sliceValue {
+						placeholders[i] = "?"
+						// Convert numbers or other types to appropriate string representation if needed
+						switch val := v.(type) {
+						case int, int32, int64, float32, float64:
+							// Keep numeric values as they are
+							values = append(values, val)
+						default:
+							// Convert other types to string
+							values = append(values, fmt.Sprintf("%v", val))
+						}
+					}
+					whereConditions = append(whereConditions,
+						fmt.Sprintf("`%s` IN (%s)", field, strings.Join(placeholders, ",")))
 				}
-				whereConditions = append(whereConditions,
-					fmt.Sprintf("`%s` IN (%s)", field, strings.Join(placeholders, ",")))
 			} else if mapValue, ok := value.(map[string]any); ok {
 				// Handle range
 				if rangeSlice, ok := mapValue["range"].([]int); ok && len(rangeSlice) == 2 {
@@ -486,13 +499,26 @@ func HandleUpdate(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 		for field, value := range filterFields {
 			if sliceValue, ok := value.([]any); ok {
 				// Handle array of values (IN clause)
-				placeholders := make([]string, len(sliceValue))
-				for i, v := range sliceValue {
-					placeholders[i] = "?"
-					whereValues = append(whereValues, v)
+				if len(sliceValue) == 0 {
+					// Handle empty array
+					whereConditions = append(whereConditions, "0=1") // No results should match
+				} else {
+					placeholders := make([]string, len(sliceValue))
+					for i, v := range sliceValue {
+						placeholders[i] = "?"
+						// Convert numbers or other types to appropriate string representation if needed
+						switch val := v.(type) {
+						case int, int32, int64, float32, float64:
+							// Keep numeric values as they are
+							whereValues = append(whereValues, val)
+						default:
+							// Convert other types to string
+							whereValues = append(whereValues, fmt.Sprintf("%v", val))
+						}
+					}
+					whereConditions = append(whereConditions,
+						fmt.Sprintf("`%s` IN (%s)", field, strings.Join(placeholders, ",")))
 				}
-				whereConditions = append(whereConditions,
-					fmt.Sprintf("`%s` IN (%s)", field, strings.Join(placeholders, ",")))
 			} else if mapValue, ok := value.(map[string]any); ok {
 				// Handle range
 				if rangeSlice, ok := mapValue["range"].([]int); ok && len(rangeSlice) == 2 {

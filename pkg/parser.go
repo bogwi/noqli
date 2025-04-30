@@ -130,7 +130,48 @@ func parseObjectNotation(str string) (map[string]any, error) {
 	trimmed = regexp.MustCompile(`,\s*,`).ReplaceAllString(trimmed, ",")
 	trimmed = regexp.MustCompile(`^,|,$`).ReplaceAllString(trimmed, "")
 
-	// If we still have content, parse it as a regular object
+	// Improved array parsing
+	// Find all KEY: [ARRAY] patterns
+	arrayRegex := regexp.MustCompile(`(\w+)\s*:\s*\[(.*?)\]`)
+	arrayMatches = arrayRegex.FindAllStringSubmatch(trimmed, -1)
+
+	for _, match := range arrayMatches {
+		if len(match) >= 3 {
+			key := match[1]
+			arrayContent := match[2]
+
+			// Remove the array pattern from the string
+			fullMatch := match[0]
+			trimmed = strings.Replace(trimmed, fullMatch, "", 1)
+
+			// Split the array content by commas (respecting quotes)
+			var arrayElements []any
+			elements := splitRespectingQuotes(arrayContent, ',')
+
+			for _, elem := range elements {
+				elemTrimmed := strings.TrimSpace(elem)
+
+				// Handle quoted strings
+				if (strings.HasPrefix(elemTrimmed, "\"") && strings.HasSuffix(elemTrimmed, "\"")) ||
+					(strings.HasPrefix(elemTrimmed, "'") && strings.HasSuffix(elemTrimmed, "'")) {
+					// Remove quotes
+					value := strings.Trim(elemTrimmed, `'"`)
+					arrayElements = append(arrayElements, value)
+				} else if num, err := strconv.Atoi(elemTrimmed); err == nil {
+					// It's a number
+					arrayElements = append(arrayElements, num)
+				} else {
+					// It's an unquoted string or identifier
+					arrayElements = append(arrayElements, elemTrimmed)
+				}
+			}
+
+			// Add the array to the result map
+			result[key] = arrayElements
+		}
+	}
+
+	// Process remaining key-value pairs
 	if trimmed != "" {
 		// Try to parse as JSON
 		jsonStr := "{" + strings.Replace(trimmed, "'", "\"", -1) + "}"
@@ -148,41 +189,66 @@ func parseObjectNotation(str string) (map[string]any, error) {
 				key := strings.TrimSpace(parts[0])
 				valueStr := strings.TrimSpace(parts[1])
 
-				// Handle arrays in bracket notation
+				// Skip array values we already processed
 				if strings.HasPrefix(valueStr, "[") && strings.HasSuffix(valueStr, "]") {
-					arrayStr := valueStr[1 : len(valueStr)-1]
-					elements := strings.Split(arrayStr, ",")
+					continue
+				}
 
-					// Try to convert elements to integers
-					var intArray []any
-					for _, elem := range elements {
-						trimmedElem := strings.TrimSpace(elem)
-						if num, err := strconv.Atoi(trimmedElem); err == nil {
-							intArray = append(intArray, num)
-						} else {
-							// If not a number, use as string
-							intArray = append(intArray, strings.Trim(trimmedElem, `'"`))
-						}
-					}
-
-					result[key] = intArray
+				// Handle simple values
+				if num, err := strconv.Atoi(valueStr); err == nil {
+					result[key] = num
 				} else {
-					// Try to convert to number
-					if num, err := strconv.Atoi(valueStr); err == nil {
-						result[key] = num
-					} else {
-						// If not a number, use as string
-						result[key] = strings.Trim(valueStr, `'"`)
-					}
+					// If not a number, use as string
+					result[key] = strings.Trim(valueStr, `'"`)
 				}
 			}
 		} else {
 			// If JSON parsing succeeds, merge the results
 			for k, v := range jsonObj {
-				result[k] = v
+				// Skip array values we already processed
+				if _, exists := result[k]; !exists {
+					result[k] = v
+				}
 			}
 		}
 	}
 
 	return result, nil
+}
+
+// Helper function to split a string by a delimiter respecting quotes
+func splitRespectingQuotes(str string, delimiter rune) []string {
+	var result []string
+	var current strings.Builder
+	inQuotes := false
+	quoteChar := rune(0)
+
+	for _, char := range str {
+		switch {
+		case char == '"' || char == '\'':
+			if inQuotes && char == quoteChar {
+				// Closing quote
+				inQuotes = false
+				quoteChar = rune(0)
+			} else if !inQuotes {
+				// Opening quote
+				inQuotes = true
+				quoteChar = char
+			}
+			current.WriteRune(char)
+		case char == delimiter && !inQuotes:
+			// Found delimiter outside quotes
+			result = append(result, current.String())
+			current.Reset()
+		default:
+			current.WriteRune(char)
+		}
+	}
+
+	// Add the last part
+	if current.Len() > 0 {
+		result = append(result, current.String())
+	}
+
+	return result
 }

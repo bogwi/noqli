@@ -11,14 +11,8 @@ This document tracks the mapping between standard MySQL commands and their NoQLi
 | `SELECT * FROM table WHERE col = 'value'` | `GET {col: 'value'}` | ✅ |
 | `SELECT * FROM table WHERE col IN ('val1', 'val2')` | `GET {col: ['val1', 'val2']}` | ✅ |
 | `SELECT * FROM table WHERE id BETWEEN 1 AND 10` | `GET {id: (1, 10)}` | ✅ |
+| `SELECT column1, column2 FROM table_name` | `GET {column1, column2}` | ❌ |
 | `SELECT * FROM table WHERE col1 = 'val1' AND col2 = 'val2'` | `GET {col1: 'val1', col2: 'val2'}` | ✅ |
-| `INSERT INTO table (col1, col2) VALUES ('val1', 'val2')` | `CREATE {col1: 'val1', col2: 'val2'}` | ✅ |
-| `UPDATE table SET col = 'value' WHERE id = 5` | `UPDATE {id: 5, col: 'value'}` | ✅ |
-| `UPDATE table SET col = 'value' WHERE id IN (1, 3, 5)` | `UPDATE {id: [1, 3, 5], col: 'value'}` | ✅ |
-| `UPDATE table SET col = 'value' WHERE id BETWEEN 1 AND 10` | `UPDATE {id: (1, 10), col: 'value'}` | ✅ |
-| `DELETE FROM table WHERE id = 5` | `DELETE {id: 5}` | ✅ |
-| `DELETE FROM table WHERE id IN (1, 3, 5)` | `DELETE {id: [1, 3, 5]}` | ✅ |
-| `DELETE FROM table WHERE id BETWEEN 1 AND 10` | `DELETE {id: (1, 10)}` | ✅ |
 | `SELECT * FROM table ORDER BY col` | `GET {UP: 'col'}` | ✅ |
 | `SELECT * FROM table ORDER BY col DESC` | `GET {DOWN: 'col'}` | ✅ |
 | `SELECT * FROM table LIMIT 10` | `GET {LIM: 10}` | ✅ |
@@ -28,6 +22,17 @@ This document tracks the mapping between standard MySQL commands and their NoQLi
 | `SELECT MAX(col) FROM table` | `GET {MAX: 'col'}` | ❌ |
 | `SELECT AVG(col) FROM table` | `GET {AVG: 'col'}` | ❌ |
 | `SELECT SUM(col) FROM table` | `GET {SUM: 'col'}` | ❌ |
+
+| `INSERT INTO table (col1, col2) VALUES ('val1', 'val2')` | `CREATE {col1: 'val1', col2: 'val2'}` | ✅ |
+
+| `UPDATE table SET col = 'value' WHERE id = 5` | `UPDATE {id: 5, col: 'value'}` | ✅ |
+| `UPDATE table SET col = 'value' WHERE id IN (1, 3, 5)` | `UPDATE {id: [1, 3, 5], col: 'value'}` | ✅ |
+| `UPDATE table SET col = 'value' WHERE id BETWEEN 1 AND 10` | `UPDATE {id: (1, 10), col: 'value'}` | ✅ |
+
+| `DELETE FROM table WHERE id = 5` | `DELETE {id: 5}` | ✅ |
+| `DELETE FROM table WHERE id IN (1, 3, 5)` | `DELETE {id: [1, 3, 5]}` | ✅ |
+| `DELETE FROM table WHERE id BETWEEN 1 AND 10` | `DELETE {id: (1, 10)}` | ✅ |
+
 
 ## Schema Manipulation
 
