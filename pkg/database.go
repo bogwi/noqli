@@ -165,7 +165,7 @@ func HandleGet(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 		}
 	}
 
-	if args == nil || len(args) == 0 {
+	if len(args) == 0 {
 		// Get all records
 		query = fmt.Sprintf("SELECT * FROM %s", CurrentTable)
 	} else {
@@ -292,7 +292,7 @@ func HandleUpdate(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 		return fmt.Errorf("no table selected")
 	}
 
-	if args == nil || len(args) == 0 {
+	if len(args) == 0 {
 		return fmt.Errorf("UPDATE requires fields to update and filter conditions")
 	}
 

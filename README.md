@@ -2,7 +2,7 @@
 
 NoQLi (pronounced "no-klee") is an interactive MySQL command-line interface with a flexible query syntax that combines the simplicity of NoSQL-style commands with the power of a relational database.
 
-> **Project Status:** NoQLi is under development. The core functionality is stable and ready for use, with new features being added more or less regularly but in packs of 2-3 features at a time. Before any tagged release, noqli's command syntax is subject to change. But you get a glomps of it trying even now! Be sure to check the [MySQL Coverage](MySQLcoverage.md) for the latest syntax and ideas around the corner. Contributions and feedback are welcome!
+> **Project Status:** NoQLi is under development. The core functionality is stable and ready for use, with new features being added more or less regularly but in packs of 2-3 features at a time. Before any tagged release, noqli's command syntax is subject to change. But you get a glimpse of it trying even now! Be sure to check the [MySQL Coverage](MySQLcoverage.md) for the latest syntax and ideas around the corner. Contributions and feedback are welcome!
 
 ## Features
 
@@ -16,6 +16,99 @@ NoQLi (pronounced "no-klee") is an interactive MySQL command-line interface with
 - Dual output format: colorized JSON or MySQL-style tabular format
 - Enhanced keyboard navigation with arrow keys (LEFT/RIGHT for editing, UP/DOWN for history)
 - Namespace-aware command history (per database and table context)
+
+## Basic Usage
+Make sure your mysql is running, then, after building noqli, run it as `./bin/noqli`. If all is correct, you should see the noqli prompt.
+
+```bash
+Connected to MySQL
+NoQLi CLI. Type EXIT to quit.
+noqli:mysql> 
+```
+Then run:
+```bash
+# this lists all databases on your mysql server
+noqli:mysql> get dbs 
+```
+```bash
+Databases: [
+  "information_schema",
+  "mysql",
+  "performance_schema",
+  "sys",
+  "tutorial_db"
+]
+```
+Get notice the command is in lowercase. This is `noqli`'s way of distinguishing between `noqli`'s commands and mysql's commands. Mysql's returns are in uppercase when using the `noqli` command line interface.
+```bash
+# this lists all tables in the current database using mysql's return format
+noqli:mysql> GET dbs 
+```
+```bash
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
+| tutorial_db        |
+
+5 rows in set
+```
+Same is true for every command `noqli` supports.
+Also notice how the command prompt changes to reflect the current database and table.
+```bash
+noqli:mysql> use mysql
+Switched to database 'mysql'
+noqli:mysql> 
+```
+Inspect the database and its tables with:
+```bash
+noqli:mysql> get tables
+Tables in mysql: [
+  "columns_priv",
+  "component",
+  "db",
+  "default_roles",
+  "engine_cost",
+   ...
+  "time_zone",
+  "time_zone_leap_second",
+  "time_zone_name",
+  "time_zone_transition",
+  "time_zone_transition_type",
+  "user"
+]
+noqli:mysql> use engine_cost
+Switched to database 'engine_cost'
+noqli:engine_cost> get
+Records: [
+  {
+    "comment": null,
+    "cost_name": "io_block_read_cost",
+    "cost_value": null,
+    "default_value": "1",
+    "device_type": "0",
+    "engine_name": "default",
+    "last_update": "2025-04-28 23:42:02"
+  },
+  {
+    "comment": null,
+    "cost_name": "memory_block_read_cost",
+    "cost_value": null,
+    "default_value": "0.25",
+    "device_type": "0",
+    "engine_name": "default",
+    "last_update": "2025-04-28 23:42:02"
+  }
+]
+```
+As you can see, using `noqli` is very simple. Native json styled returns are unbreakable. Inspect any table with `noqli`, trace problematic entries.
+
+At the moment it is best to use `noqli` for general inspection and use mysql's CLI for any serious work. NoQLi does support CREATE, UPDATE, DELETE, but it is too soon to introduce them into the mix.
+
+Check out the [MySQL Coverage](MySQLcoverage.md) for the latest syntax and ideas around the corner.
+
 
 ## Installation
 
@@ -112,178 +205,12 @@ Start the CLI:
 ./bin/noqli
 ```
 
-### Command Syntax
-
-NoQLi supports several commands:
-
 #### Output Formats
 
 NoQLi now supports two output formats:
 - **Colorized JSON format**: Use lowercase commands (e.g., `get`, `create`) to get colorized JSON-formatted responses
 - **MySQL-style tabular format**: Use UPPERCASE commands (e.g., `GET`, `CREATE`) to get native MySQL-style tabular output
 
-The command syntax remains flexible for both formats.
-
-#### Database and Table Selection
-
-1. Show all available databases:
-   ```
-   GET dbs
-   ```
-
-2. Show all tables in the current database:
-   ```
-   GET tables
-   ```
-
-3. Switch to a database:
-   ```
-   USE database_name
-   ```
-
-4. Select a table for operations:
-   ```
-   USE table_name
-   ```
-
-The command prompt changes to reflect your current selections:
-- Default: `noqli>`
-- When a database is selected: `noqli:database_name>`
-- When both database and table are selected: `noqli:database_name:table_name>`
-
-#### CRUD Operations
-
-NoQLi supports four main CRUD commands:
-
-#### CREATE
-
-Add new records to the database:
-
-```
-CREATE {name: 'John Doe', email: 'john@example.com'}
-```
-
-You can add any field, even if it doesn't exist in the table yet - NoQLi will automatically create new columns as needed.
-
-#### GET
-
-Retrieve records from the database:
-
-1. Get all records:
-   ```
-   GET
-   ```
-
-2. Get a record by ID:
-   ```
-   GET 5
-   ```
-   or
-   ```
-   GET {id: 5}
-   ```
-
-3. Get multiple records by ID:
-   ```
-   GET {id: [1, 3, 5]}
-   ```
-
-4. Get records in an ID range:
-   ```
-   GET {id: (1, 10)}
-   ```
-
-5. Get records by any column:
-   ```
-   GET {email: 'alice@example.com'}
-   ```
-
-6. Get records by multiple columns:
-   ```
-   GET {name: 'Alice', status: 'active'}
-   ```
-
-7. Get records with array values:
-   ```
-   GET {status: ['active', 'pending']}
-   ```
-
-#### UPDATE
-
-Update existing records:
-
-1. Update a single record:
-   ```
-   UPDATE {id: 5, name: 'New Name', status: 'active'}
-   ```
-
-2. Update multiple records:
-   ```
-   UPDATE {id: [1, 3, 5], status: 'inactive'}
-   ```
-
-3. Update records in a range:
-   ```
-   UPDATE {id: (1, 10), category: 'archived'}
-   ```
-
-4. Update records filtered by any column:
-   ```
-   UPDATE {email: ['alice@example.com'], status: 'active'}
-   ```
-   This updates the status to 'active' for records with email 'alice@example.com'.
-
-5. Update records filtered by array values:
-   ```
-   UPDATE {status: ['pending', 'review'], category: 'urgent'}
-   ```
-   This updates the category to 'urgent' for all records with status 'pending' or 'review'.
-
-6. Update all records (with confirmation prompt):
-   ```
-   UPDATE {category: 'general'}
-   ```
-   This updates all records in the table after confirming with the user.
-
-#### DELETE
-
-Delete records from the database:
-
-1. Delete a single record:
-   ```
-   DELETE {id: 5}
-   ```
-
-2. Delete multiple records:
-   ```
-   DELETE {id: [1, 3, 5]}
-   ```
-
-3. Delete records in a range:
-   ```
-   DELETE {id: (1, 10)}
-   ```
-
-### Special Query Syntax
-
-NoQLi supports some special syntax features:
-
-1. Array value assignment to multiple fields:
-   ```
-   CREATE {[status, category] = 'active'}
-   ```
-   This sets both `status` and `category` fields to 'active'.
-
-2. Range queries with the format:
-   ```
-   GET {id: (start, end)}
-   ```
-
-3. Simple ID queries:
-   ```
-   GET 5
-   ```
-   This is equivalent to `GET {id: 5}`
 
 ### Keyboard Navigation
 
