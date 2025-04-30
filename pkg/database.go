@@ -132,8 +132,40 @@ func HandleGet(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 	// Build query based on args
 	var query string
 	var values []any
+	var orderByClause string
 
-	if args == nil {
+	// Check for ordering parameters
+	if args != nil {
+		if upValue, ok := args["up"]; ok {
+			// Order ascending
+			if colName, ok := upValue.(string); ok {
+				orderByClause = fmt.Sprintf(" ORDER BY `%s` ASC", colName)
+			}
+			delete(args, "up")
+		} else if upValue, ok := args["UP"]; ok {
+			// Same for uppercase variant
+			if colName, ok := upValue.(string); ok {
+				orderByClause = fmt.Sprintf(" ORDER BY `%s` ASC", colName)
+			}
+			delete(args, "UP")
+		}
+
+		if downValue, ok := args["down"]; ok {
+			// Order descending
+			if colName, ok := downValue.(string); ok {
+				orderByClause = fmt.Sprintf(" ORDER BY `%s` DESC", colName)
+			}
+			delete(args, "down")
+		} else if downValue, ok := args["DOWN"]; ok {
+			// Same for uppercase variant
+			if colName, ok := downValue.(string); ok {
+				orderByClause = fmt.Sprintf(" ORDER BY `%s` DESC", colName)
+			}
+			delete(args, "DOWN")
+		}
+	}
+
+	if args == nil || len(args) == 0 {
 		// Get all records
 		query = fmt.Sprintf("SELECT * FROM %s", CurrentTable)
 	} else {
@@ -174,6 +206,11 @@ func HandleGet(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 			// No conditions, get all
 			query = fmt.Sprintf("SELECT * FROM %s", CurrentTable)
 		}
+	}
+
+	// Add ORDER BY clause if present
+	if orderByClause != "" {
+		query += orderByClause
 	}
 
 	// Execute query
