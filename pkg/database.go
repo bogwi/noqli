@@ -471,9 +471,9 @@ func HandleUpdate(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 			}
 			defer rows.Close()
 
-			var ids []interface{}
+			var ids []any
 			for rows.Next() {
-				var id interface{}
+				var id any
 				if err := rows.Scan(&id); err != nil {
 					return err
 				}
