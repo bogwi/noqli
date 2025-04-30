@@ -2,7 +2,7 @@
 
 NoQLi (pronounced "no-klee") is an interactive MySQL command-line interface with a flexible query syntax that combines the simplicity of NoSQL-style commands with the power of a relational database.
 
-> **Project Status:** NoQLi is under development. The core functionality is stable and ready for use, with new features being added more or less regularly but in packs of 2-3 features at a time. Contributions and feedback are welcome!
+> **Project Status:** NoQLi is under development. The core functionality is stable and ready for use, with new features being added more or less regularly but in packs of 2-3 features at a time. Before any tagged release, noqli's command syntax is subject to change. But you get a glomps of it trying even now! Be sure to check the [MySQL Coverage](MySQLcoverage.md) for the latest syntax and ideas around the corner. Contributions and feedback are welcome!
 
 ## Features
 
