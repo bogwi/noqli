@@ -41,6 +41,7 @@ This document tracks the mapping between standard MySQL commands and their NoQLi
 | `SHOW DATABASES` | `GET dbs` | ✅ |
 | `SHOW TABLES` | `GET tables` | ✅ |
 | `USE database_name` | `USE database_name` | ✅ |
+| `USE table_name` | `USE table_name` | ✅ |
 | `DESCRIBE table` or `SHOW COLUMNS FROM table` | `GET schema` | ❌ |
 | `CREATE DATABASE db_name` | `MAKE DB db_name` | ❌ |
 | `CREATE TABLE table_name (...)` | `MAKE TABLE table_name (...)` | ❌ |
