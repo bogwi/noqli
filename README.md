@@ -197,6 +197,12 @@ make test
 make clean
 ```
 
+### All
+
+```
+make all
+```
+
 ## Usage
 
 Start the CLI:

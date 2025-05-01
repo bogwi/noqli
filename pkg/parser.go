@@ -94,7 +94,7 @@ func parseObjectNotation(str string) (map[string]any, error) {
 		// Try as JSON
 		if err := json.Unmarshal([]byte(valueStr), &value); err != nil {
 			// If not JSON, use string with quotes removed
-			value = strings.Trim(valueStr, `'"`)
+			value = strings.Trim(valueStr, `'\"`)
 		}
 
 		// Assign to all fields
@@ -102,6 +102,35 @@ func parseObjectNotation(str string) (map[string]any, error) {
 			result[strings.TrimSpace(field)] = value
 		}
 	}
+
+	// --- Extract leading columns ---
+	var colList []string
+	parts := splitRespectingQuotes(trimmed, ',')
+	for i, part := range parts {
+		p := strings.TrimSpace(part)
+		if p == "" || strings.HasPrefix(p, "[") {
+			continue
+		}
+		// If it looks like a key-value pair, stop collecting columns
+		if strings.Contains(p, ":") || strings.Contains(p, "=") {
+			// The rest will be handled by key-value logic below
+			break
+		}
+		colList = append(colList, p)
+		// Remove from trimmed string
+		parts[i] = ""
+	}
+	if len(colList) > 0 {
+		result["_columns"] = colList
+	}
+	// Rebuild trimmed string with remaining parts
+	var remaining []string
+	for _, p := range parts {
+		if strings.TrimSpace(p) != "" {
+			remaining = append(remaining, p)
+		}
+	}
+	trimmed = strings.Join(remaining, ",")
 
 	// Process ID range syntax: id: (start, stop)
 	rangeRegex := regexp.MustCompile(`id\s*:\s*\(([^,]+),([^)]+)\)`)
