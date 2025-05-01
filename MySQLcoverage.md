@@ -25,13 +25,10 @@ This document tracks the mapping between standard MySQL commands and their NoQLi
 | `SELECT MAX(col) FROM table` | `GET {MAX: 'col'}` | ❌ |
 | `SELECT AVG(col) FROM table` | `GET {AVG: 'col'}` | ❌ |
 | `SELECT SUM(col) FROM table` | `GET {SUM: 'col'}` | ❌ |
-
 | `INSERT INTO table (col1, col2) VALUES ('val1', 'val2')` | `CREATE {col1: 'val1', col2: 'val2'}` | ✅ |
-
 | `UPDATE table SET col = 'value' WHERE id = 5` | `UPDATE {id: 5, col: 'value'}` | ✅ |
 | `UPDATE table SET col = 'value' WHERE id IN (1, 3, 5)` | `UPDATE {id: [1, 3, 5], col: 'value'}` | ✅ |
 | `UPDATE table SET col = 'value' WHERE id BETWEEN 1 AND 10` | `UPDATE {id: (1, 10), col: 'value'}` | ✅ |
-
 | `DELETE FROM table WHERE id = 5` | `DELETE {id: 5}` | ✅ |
 | `DELETE FROM table WHERE id IN (1, 3, 5)` | `DELETE {id: [1, 3, 5]}` | ✅ |
 | `DELETE FROM table WHERE id BETWEEN 1 AND 10` | `DELETE {id: (1, 10)}` | ✅ |
