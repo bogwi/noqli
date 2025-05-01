@@ -62,7 +62,7 @@ noqli:mysql> use mysql
 Switched to database 'mysql'
 noqli:mysql> 
 ```
-Inspect the database and its tables with:
+`noqli` was specifically designed to inspect extremely large databases. Here’s how:
 ```bash
 noqli:mysql> get tables
 Tables in mysql: [
@@ -71,41 +71,79 @@ Tables in mysql: [
   "db",
   "default_roles",
   "engine_cost",
-   ...
-  "time_zone",
-  "time_zone_leap_second",
-  "time_zone_name",
-  "time_zone_transition",
-  "time_zone_transition_type",
-  "user"
+  "func",
+  "general_log",
+  "global_grants",
+  "gtid_executed",
+  "help_category",
+  "help_keyword",
+  "help_relation",
+  "help_topic",
+   ... # skipped
 ]
-noqli:mysql> use engine_cost
-Switched to database 'engine_cost'
-noqli:engine_cost> get
+noqli:mysql> use help_topic
+Using table 'help_topic'
+noqli:mysql:help_topic> get # will bring all records
 Records: [
   {
-    "comment": null,
-    "cost_name": "io_block_read_cost",
-    "cost_value": null,
-    "default_value": "1",
-    "device_type": "0",
-    "engine_name": "default",
-    "last_update": "2025-04-28 23:42:02"
+    "description": "This help information was generated from the MySQL 9.1 Reference Manual\non: 2024-09-13\n",
+    "example": "",
+    "help_category_id": "1",
+    "help_topic_id": "0",
+    "name": "HELP_DATE",
+    "url": ""
+  },
+    ... # skipped
+  {
+    "description": "Syntax:\nmysql> help search_string\n\nIf you provide an argument to the help command, mysql uses it as ... ", #skipped
+    "example": "",
+    "help_category_id": "3",
+    "help_topic_id": "3",
+    "name": "HELP COMMAND",
+    "url": "https://dev.mysql.com/doc/refman/9.1/en/mysql-server-side-help.html"
+  },
+  ... # skipped
+]
+```
+This is huge. NoQLi works incredibly fast in your terminal; you can perform filtering using your terminal with ease. JSON payloads are robust and unbreakable. Inspect any table with `noqli` and trace problematic entries in seconds.
+
+Or filter and narrow your results:
+
+```bash
+noqli:mysql:help_topic> get {name, url, lim:4, off:10}
+Records: [
+  {
+    "name": "CREATE_DIGEST",
+    "url": "https://dev.mysql.com/doc/refman/9.1/en/enterprise-encryption-functions.html"
   },
   {
-    "comment": null,
-    "cost_name": "memory_block_read_cost",
-    "cost_value": null,
-    "default_value": "0.25",
-    "device_type": "0",
-    "engine_name": "default",
-    "last_update": "2025-04-28 23:42:02"
+    "name": "TRUE",
+    "url": "https://dev.mysql.com/doc/refman/9.1/en/boolean-literals.html"
+  },
+  {
+    "name": "FALSE",
+    "url": "https://dev.mysql.com/doc/refman/9.1/en/boolean-literals.html"
+  },
+  {
+    "name": "BIT",
+    "url": "https://dev.mysql.com/doc/refman/9.1/en/numeric-type-syntax.html"
   }
 ]
 ```
-As you can see, using `noqli` is very simple. Native json styled returns are unbreakable. Inspect any table with `noqli`, trace problematic entries.
+Or perform "like queries" to filter a specific column:
+```bash
+noqli:mysql:help_topic> get {description, like:MERGE, lim:1}
+Records: [
+  {
+    "description": "Syntax:\nJSON_MERGE(json_doc, json_doc[, json_doc] ...)\n\nDeprecated synonym for JSON_MERGE_PRESERVE().\n\nURL: https://dev.mysql.com/doc/refman/9.1/en/json-modification-functions.html\n\n"
+  }
+]
+```
 
-At the moment it is best to use `noqli` for general inspection and use mysql's CLI for any serious work. NoQLi does support CREATE, UPDATE, DELETE, but it is too soon to introduce them into the mix.
+___
+### Important
+
+> At the moment, it is best to use `noqli` for general inspection and use MySQL's CLI or your other favorite tools for updates. NoQLi does support CREATE, UPDATE, and DELETE, but it is too soon to introduce them into the mix.
 
 Check out the [MySQL Coverage](MySQLcoverage.md) for the latest syntax and ideas around the corner.
 
