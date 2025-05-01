@@ -11,7 +11,7 @@ This document tracks the mapping between standard MySQL commands and their NoQLi
 | `SELECT * FROM table WHERE col = 'value'` | `GET {col: 'value'}` | ✅ |
 | `SELECT * FROM table WHERE col IN ('val1', 'val2')` | `GET {col: ['val1', 'val2']}` | ✅ |
 | `SELECT * FROM table WHERE id BETWEEN 1 AND 10` | `GET {id: (1, 10)}` | ✅ |
-| `SELECT column1, column2 FROM table_name` | `GET {column1, column2}` | ❌ |
+| `SELECT column1, column2 FROM table_name` | `GET {column1, column2}` | ✅  |
 | `SELECT * FROM table WHERE col1 = 'val1' AND col2 = 'val2'` | `GET {col1: 'val1', col2: 'val2'}` | ✅ |
 | `SELECT * FROM table ORDER BY col` | `GET {UP: 'col'}` | ✅ |
 | `SELECT * FROM table ORDER BY col DESC` | `GET {DOWN: 'col'}` | ✅ |
