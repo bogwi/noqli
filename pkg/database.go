@@ -3,6 +3,7 @@ package pkg
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 )
 
 // getColumns retrieves all column names from the current table
@@ -208,4 +209,31 @@ func toInt(v any) (int, bool) {
 	default:
 		return 0, false
 	}
+}
+
+// getTextColumns returns only the text columns for the current table
+func getTextColumns(db *sql.DB) ([]string, error) {
+	if CurrentTable == "" {
+		return nil, fmt.Errorf("no table selected")
+	}
+
+	rows, err := db.Query(fmt.Sprintf("SHOW COLUMNS FROM %s", CurrentTable))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var textColumns []string
+	for rows.Next() {
+		var field, fieldType, null, key, defaultVal, extra sql.NullString
+		if err := rows.Scan(&field, &fieldType, &null, &key, &defaultVal, &extra); err != nil {
+			return nil, err
+		}
+		// Check if the type is a text type
+		t := strings.ToUpper(fieldType.String)
+		if strings.Contains(t, "CHAR") || strings.Contains(t, "TEXT") || strings.Contains(t, "ENUM") || strings.Contains(t, "SET") {
+			textColumns = append(textColumns, field.String)
+		}
+	}
+	return textColumns, nil
 }

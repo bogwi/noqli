@@ -19,6 +19,9 @@ This document tracks the mapping between standard MySQL commands and their NoQLi
 | `SELECT * FROM table LIMIT 10 OFFSET 20` | `GET {LIM: 10, OFF: 20}` | ✅ |
 | `SELECT * FROM table WHERE col LIKE '%pattern%'` | `GET {LIKE: 'pattern'}` | ✅ |
 | `SELECT COUNT(*) FROM table` | `GET {COUNT: '*'}` | ❌ |
+| `SELECT COUNT(email) FROM table` | `GET {COUNT: 'email'}` | ❌ |
+| `SELECT COUNT(DISTINCT email) FROM table` | `GET {COUNT: 'email', DISTINCT: true}` | ❌ |
+| `SELECT COUNT(*) FROM table WHERE country = 'USA'` | `GET {COUNT: '*', country: 'USA'}` | ❌ |
 | `SELECT MAX(col) FROM table` | `GET {MAX: 'col'}` | ❌ |
 | `SELECT AVG(col) FROM table` | `GET {AVG: 'col'}` | ❌ |
 | `SELECT SUM(col) FROM table` | `GET {SUM: 'col'}` | ❌ |

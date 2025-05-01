@@ -2,7 +2,9 @@ package pkg
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 )
 
@@ -10,6 +12,182 @@ import (
 func HandleGet(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 	if CurrentTable == "" {
 		return fmt.Errorf("no table selected")
+	}
+
+	// --- COUNT support ---
+	var countKey string
+	var countTarget any
+	var hasCount bool
+	var distinct bool
+	// Check for COUNT (case-insensitive)
+	if args != nil {
+		if v, ok := args["COUNT"]; ok {
+			countKey = "COUNT"
+			countTarget = v
+			hasCount = true
+		} else if v, ok := args["count"]; ok {
+			countKey = "count"
+			countTarget = v
+			hasCount = true
+		}
+		if hasCount {
+			// Check for DISTINCT (case-insensitive)
+			if d, ok := args["DISTINCT"]; ok {
+				if b, ok := d.(bool); ok && b {
+					distinct = true
+				}
+				delete(args, "DISTINCT")
+			} else if d, ok := args["distinct"]; ok {
+				if b, ok := d.(bool); ok && b {
+					distinct = true
+				}
+				delete(args, "distinct")
+			}
+			// Remove COUNT key from args
+			delete(args, countKey)
+		}
+	}
+
+	if hasCount {
+		// DEBUG: Print the full args map at the start of COUNT logic
+		// log.Printf("[DEBUG] COUNT args: %#v\n", args)
+
+		// --- LIKE support for COUNT ---
+		var likeValue any
+		if args != nil {
+			if v, ok := args["LIKE"]; ok {
+				likeValue = v
+				delete(args, "LIKE")
+			} else if v, ok := args["like"]; ok {
+				likeValue = v
+				delete(args, "like")
+			}
+		}
+
+		// Build COUNT query
+		var countExpr string
+		if s, ok := countTarget.(string); ok {
+			if distinct && s != "*" {
+				countExpr = fmt.Sprintf("COUNT(DISTINCT `%s`)", s)
+			} else if s == "*" {
+				countExpr = "COUNT(*)"
+			} else {
+				countExpr = fmt.Sprintf("COUNT(`%s`)", s)
+			}
+		} else {
+			// Fallback to COUNT(*)
+			countExpr = "COUNT(*)"
+		}
+
+		// Build WHERE clause from remaining args
+		var whereConditions []string
+		var values []any
+		for field, value := range args {
+			if sliceValue, ok := value.([]any); ok {
+				if len(sliceValue) == 0 {
+					whereConditions = append(whereConditions, "0=1")
+				} else {
+					placeholders := make([]string, len(sliceValue))
+					for i, v := range sliceValue {
+						placeholders[i] = "?"
+						values = append(values, v)
+					}
+					whereConditions = append(whereConditions, fmt.Sprintf("`%s` IN (%s)", field, strings.Join(placeholders, ",")))
+				}
+			} else if mapValue, ok := value.(map[string]any); ok {
+				// Support both []int and []any for range
+				if rangeVal, ok := mapValue["range"]; ok {
+					switch rangeSlice := rangeVal.(type) {
+					case []int:
+						if len(rangeSlice) == 2 {
+							whereConditions = append(whereConditions, fmt.Sprintf("`%s` >= ? AND `%s` <= ?", field, field))
+							values = append(values, rangeSlice[0], rangeSlice[1])
+						} else {
+							return fmt.Errorf("invalid range format for field %s", field)
+						}
+					case []any:
+						if len(rangeSlice) == 2 {
+							valuesToAdd := make([]any, 2)
+							for i := 0; i < 2; i++ {
+								switch v := rangeSlice[i].(type) {
+								case int:
+									valuesToAdd[i] = v
+								case float64:
+									valuesToAdd[i] = int(v)
+								case json.Number:
+									if intVal, err := v.Int64(); err == nil {
+										valuesToAdd[i] = int(intVal)
+									} else {
+										return fmt.Errorf("invalid range value type for field %s", field)
+									}
+								default:
+									return fmt.Errorf("invalid range value type for field %s", field)
+								}
+							}
+							whereConditions = append(whereConditions, fmt.Sprintf("`%s` >= ? AND `%s` <= ?", field, field))
+							values = append(values, valuesToAdd[0], valuesToAdd[1])
+						} else {
+							return fmt.Errorf("invalid range format for field %s", field)
+						}
+					default:
+						return fmt.Errorf("invalid range type for field %s", field)
+					}
+					continue // After handling range, do not process this field further
+				} else {
+					return fmt.Errorf("invalid range format for field %s", field)
+				}
+			} else {
+				whereConditions = append(whereConditions, fmt.Sprintf("`%s` = ?", field))
+				values = append(values, value)
+			}
+		}
+
+		// Add LIKE clause if present
+		if likeValue != nil {
+			likeStr := fmt.Sprintf("%v", likeValue)
+			if !strings.Contains(likeStr, "%") {
+				likeStr = "%" + likeStr + "%"
+			}
+			textColumns, err := getTextColumns(db)
+			if err != nil {
+				return err
+			}
+			if len(textColumns) == 0 {
+				return fmt.Errorf("no text columns available for LIKE query")
+			}
+			var likeConds []string
+			for _, col := range textColumns {
+				likeConds = append(likeConds, fmt.Sprintf("`%s` LIKE ?", col))
+				values = append(values, likeStr)
+			}
+			likeClause := "(" + strings.Join(likeConds, " OR ") + ")"
+			whereConditions = append(whereConditions, likeClause)
+		}
+
+		query := fmt.Sprintf("SELECT %s AS count FROM %s", countExpr, CurrentTable)
+		if len(whereConditions) > 0 {
+			query += " WHERE " + strings.Join(whereConditions, " AND ")
+		}
+		// DEBUG: Print the final query and values for troubleshooting
+		// log.Printf("[DEBUG] COUNT query: %s\n", query)
+		// log.Printf("[DEBUG] COUNT values: %#v\n", values)
+		// Execute COUNT query
+		row := db.QueryRow(query, values...)
+		var countResult int64
+		if err := row.Scan(&countResult); err != nil {
+			return err
+		}
+		if useJsonOutput {
+			fmt.Printf("Count: %s\n", ColorJSON(map[string]any{"count": countResult}))
+		} else {
+			fmt.Println()
+			fmt.Printf("| %-5s |", "count")
+			fmt.Println("+-------+")
+			fmt.Printf("| %-5d |", countResult)
+			fmt.Println("+-------+")
+			fmt.Printf("\n1 row in set\n")
+		}
+		return nil
 	}
 
 	// --- Column selection support ---
@@ -238,8 +416,8 @@ func HandleGet(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 	}
 
 	// DEBUG: Print the final query and values
-	// fmt.Printf("[DEBUG] Executing query: %s\n", query)
-	// fmt.Printf("[DEBUG] With values: %#v\n", values)
+	log.Printf("[DEBUG] Executing query: %s\n", query)
+	log.Printf("[DEBUG] With values: %#v\n", values)
 
 	rows, err := db.Query(query, values...)
 	if err != nil {
@@ -253,7 +431,7 @@ func HandleGet(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 		return err
 	}
 	// DEBUG: Print the columns returned
-	// fmt.Printf("[DEBUG] Columns returned: %#v\n", columns)
+	// log.Printf("[DEBUG] Columns returned: %#v\n", columns)
 
 	// Prepare results
 	var results []map[string]any

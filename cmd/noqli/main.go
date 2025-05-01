@@ -11,9 +11,26 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 	"github.com/peterh/liner"
+
+	"flag"
+	"log"
 )
 
+var debug = flag.Bool("debug", false, "enable debug mode")
+
 func main() {
+	flag.Parse()
+	if *debug {
+		log.SetOutput(os.Stdout)
+	} else {
+		f, err := os.OpenFile(os.DevNull, os.O_WRONLY, 0)
+		if err != nil {
+			log.Fatalf("failed to open os.DevNull: %v", err)
+		}
+		defer f.Close()
+		log.SetOutput(f)
+	}
+
 	// Load .env file
 	if err := godotenv.Load(); err != nil {
 		fmt.Println("Error loading .env file:", err)

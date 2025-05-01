@@ -3,6 +3,7 @@ package pkg
 import (
 	"encoding/json"
 	"fmt"
+	// "log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -222,17 +223,25 @@ func parseObjectNotation(str string) (map[string]any, error) {
 				if strings.HasPrefix(valueStr, "[") && strings.HasSuffix(valueStr, "]") {
 					continue
 				}
+				// log.Printf("[DEBUG] key: %s, value: %s\n", key, valueStr)
 
 				// Handle simple values
+				valueStr = strings.Trim(valueStr, `'"`)
 				if num, err := strconv.Atoi(valueStr); err == nil {
 					result[key] = num
+				} else if strings.EqualFold(valueStr, "true") {
+					result[key] = true
+				} else if strings.EqualFold(valueStr, "false") {
+					result[key] = false
 				} else {
 					// If not a number, use as string
-					result[key] = strings.Trim(valueStr, `'"`)
+					result[key] = valueStr
 				}
+				// log.Printf("[DEBUG] err: %#v\n", err)
 			}
 		} else {
 			// If JSON parsing succeeds, merge the results
+			// Post-process: convert string 'true'/'false' to boolean
 			for k, v := range jsonObj {
 				// Skip array values we already processed
 				if _, exists := result[k]; !exists {
