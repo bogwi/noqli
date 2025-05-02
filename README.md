@@ -58,11 +58,13 @@ noqli:mysql> GET dbs
 Same is true for every command `noqli` supports.
 Also notice how the command prompt changes to reflect the current database and table.
 ```bash
-noqli:mysql> use mysql
-Switched to database 'mysql'
-noqli:mysql> 
+noqli:mysql> use tutorial_db
+Switched to database 'tutorial_db'
+noqli:tutorial_db> use users
+Using table 'users'
+noqli:tutorial_db:users> 
 ```
-`noqli` was specifically designed to inspect extremely large databases. Here’s how:
+`noqli` was specifically designed to inspect extremely large databases quickly. Here’s how:
 ```bash
 noqli:mysql> get tables
 Tables in mysql: [
@@ -105,9 +107,9 @@ Records: [
   ... # skipped
 ]
 ```
-This is huge. NoQLi works incredibly fast in your terminal; you can perform filtering using your terminal with ease. JSON payloads are robust and unbreakable. Inspect any table with `noqli` and trace problematic entries in seconds.
+This is huge. NoQLi works incredibly fast in your terminal. JSON payloads are robust and unbreakable. Inspect any table with `noqli` and trace problematic entries in seconds.
 
-Or filter and narrow your results:
+Filter and narrow your results:
 
 ```bash
 noqli:mysql:help_topic> get {name, url, lim:4, off:10}
@@ -139,11 +141,12 @@ Records: [
   }
 ]
 ```
+And many more.
 
 ___
 ### Important
 
-> At the moment, it is best to use `noqli` for general inspection and use MySQL's CLI or your other favorite tools for updates. NoQLi does support CREATE, UPDATE, and DELETE, but it is too soon to introduce them into the mix.
+> At the moment, it is best to use `noqli` for general fast inspection and use MySQL's CLI or your other favorite tools for updates. NoQLi does support CREATE, UPDATE, and DELETE, but it is too soon to introduce them into the mix.
 
 Check out the [MySQL Coverage](MySQLcoverage.md) for the latest syntax and ideas around the corner.
 
@@ -251,7 +254,7 @@ Start the CLI:
 
 #### Output Formats
 
-NoQLi now supports two output formats:
+NoQLi supports two output formats:
 - **Colorized JSON format**: Use lowercase commands (e.g., `get`, `create`) to get colorized JSON-formatted responses
 - **MySQL-style tabular format**: Use UPPERCASE commands (e.g., `GET`, `CREATE`) to get native MySQL-style tabular output
 
