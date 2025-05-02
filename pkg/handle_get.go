@@ -48,10 +48,89 @@ func HandleGet(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 		}
 	}
 
-	if hasCount {
-		// DEBUG: Print the full args map at the start of COUNT logic
-		// log.Printf("[DEBUG] COUNT args: %#v\n", args)
+	// --- MAX, MIN, AVG, SUM support ---
+	var aggregateKey string
+	var aggregateTarget any
+	var hasAggregate bool
+	var aggregateFunc string
 
+	// Check for aggregate functions (case-insensitive)
+	if args != nil && !hasCount {
+		// Check for MAX
+		if v, ok := args["MAX"]; ok {
+			aggregateKey = "MAX"
+			aggregateTarget = v
+			aggregateFunc = "MAX"
+			hasAggregate = true
+		} else if v, ok := args["max"]; ok {
+			aggregateKey = "max"
+			aggregateTarget = v
+			aggregateFunc = "MAX"
+			hasAggregate = true
+		}
+		// Check for MIN
+		if !hasAggregate {
+			if v, ok := args["MIN"]; ok {
+				aggregateKey = "MIN"
+				aggregateTarget = v
+				aggregateFunc = "MIN"
+				hasAggregate = true
+			} else if v, ok := args["min"]; ok {
+				aggregateKey = "min"
+				aggregateTarget = v
+				aggregateFunc = "MIN"
+				hasAggregate = true
+			}
+		}
+		// Check for AVG
+		if !hasAggregate {
+			if v, ok := args["AVG"]; ok {
+				aggregateKey = "AVG"
+				aggregateTarget = v
+				aggregateFunc = "AVG"
+				hasAggregate = true
+			} else if v, ok := args["avg"]; ok {
+				aggregateKey = "avg"
+				aggregateTarget = v
+				aggregateFunc = "AVG"
+				hasAggregate = true
+			}
+		}
+		// Check for SUM
+		if !hasAggregate {
+			if v, ok := args["SUM"]; ok {
+				aggregateKey = "SUM"
+				aggregateTarget = v
+				aggregateFunc = "SUM"
+				hasAggregate = true
+			} else if v, ok := args["sum"]; ok {
+				aggregateKey = "sum"
+				aggregateTarget = v
+				aggregateFunc = "SUM"
+				hasAggregate = true
+			}
+		}
+
+		// Handle distinct for aggregate functions
+		if hasAggregate {
+			// Check for DISTINCT (case-insensitive)
+			if d, ok := args["DISTINCT"]; ok {
+				if b, ok := d.(bool); ok && b {
+					distinct = true
+				}
+				delete(args, "DISTINCT")
+			} else if d, ok := args["distinct"]; ok {
+				if b, ok := d.(bool); ok && b {
+					distinct = true
+				}
+				delete(args, "distinct")
+			}
+			// Remove aggregate key from args
+			delete(args, aggregateKey)
+		}
+	}
+
+	if hasCount {
 		// --- LIKE support for COUNT ---
 		var likeValue any
 		if args != nil {
@@ -185,6 +264,149 @@ func HandleGet(db *sql.DB, args map[string]any, useJsonOutput bool) error {
 			fmt.Println("+-------+")
 			fmt.Printf("| %-5d |", countResult)
 			fmt.Println("+-------+")
+			fmt.Printf("\n1 row in set\n")
+		}
+		return nil
+	} else if hasAggregate {
+		// --- LIKE support for aggregate functions ---
+		var likeValue any
+		if args != nil {
+			if v, ok := args["LIKE"]; ok {
+				likeValue = v
+				delete(args, "LIKE")
+			} else if v, ok := args["like"]; ok {
+				likeValue = v
+				delete(args, "like")
+			}
+		}
+
+		// Build aggregate function query
+		var aggregateExpr string
+		if s, ok := aggregateTarget.(string); ok {
+			if distinct {
+				aggregateExpr = fmt.Sprintf("%s(DISTINCT `%s`)", aggregateFunc, s)
+			} else {
+				aggregateExpr = fmt.Sprintf("%s(`%s`)", aggregateFunc, s)
+			}
+		} else {
+			return fmt.Errorf("aggregate function requires a column name")
+		}
+
+		// Build WHERE clause from remaining args
+		var whereConditions []string
+		var values []any
+		for field, value := range args {
+			if sliceValue, ok := value.([]any); ok {
+				if len(sliceValue) == 0 {
+					whereConditions = append(whereConditions, "0=1")
+				} else {
+					placeholders := make([]string, len(sliceValue))
+					for i, v := range sliceValue {
+						placeholders[i] = "?"
+						values = append(values, v)
+					}
+					whereConditions = append(whereConditions, fmt.Sprintf("`%s` IN (%s)", field, strings.Join(placeholders, ",")))
+				}
+			} else if mapValue, ok := value.(map[string]any); ok {
+				// Support both []int and []any for range
+				if rangeVal, ok := mapValue["range"]; ok {
+					switch rangeSlice := rangeVal.(type) {
+					case []int:
+						if len(rangeSlice) == 2 {
+							whereConditions = append(whereConditions, fmt.Sprintf("`%s` >= ? AND `%s` <= ?", field, field))
+							values = append(values, rangeSlice[0], rangeSlice[1])
+						} else {
+							return fmt.Errorf("invalid range format for field %s", field)
+						}
+					case []any:
+						if len(rangeSlice) == 2 {
+							valuesToAdd := make([]any, 2)
+							for i := 0; i < 2; i++ {
+								switch v := rangeSlice[i].(type) {
+								case int:
+									valuesToAdd[i] = v
+								case float64:
+									valuesToAdd[i] = int(v)
+								case json.Number:
+									if intVal, err := v.Int64(); err == nil {
+										valuesToAdd[i] = int(intVal)
+									} else {
+										return fmt.Errorf("invalid range value type for field %s", field)
+									}
+								default:
+									return fmt.Errorf("invalid range value type for field %s", field)
+								}
+							}
+							whereConditions = append(whereConditions, fmt.Sprintf("`%s` >= ? AND `%s` <= ?", field, field))
+							values = append(values, valuesToAdd[0], valuesToAdd[1])
+						} else {
+							return fmt.Errorf("invalid range format for field %s", field)
+						}
+					default:
+						return fmt.Errorf("invalid range type for field %s", field)
+					}
+					continue // After handling range, do not process this field further
+				} else {
+					return fmt.Errorf("invalid range format for field %s", field)
+				}
+			} else {
+				whereConditions = append(whereConditions, fmt.Sprintf("`%s` = ?", field))
+				values = append(values, value)
+			}
+		}
+
+		// Add LIKE clause if present
+		if likeValue != nil {
+			likeStr := fmt.Sprintf("%v", likeValue)
+			if !strings.Contains(likeStr, "%") {
+				likeStr = "%" + likeStr + "%"
+			}
+			textColumns, err := getTextColumns(db)
+			if err != nil {
+				return err
+			}
+			if len(textColumns) == 0 {
+				return fmt.Errorf("no text columns available for LIKE query")
+			}
+			var likeConds []string
+			for _, col := range textColumns {
+				likeConds = append(likeConds, fmt.Sprintf("`%s` LIKE ?", col))
+				values = append(values, likeStr)
+			}
+			likeClause := "(" + strings.Join(likeConds, " OR ") + ")"
+			whereConditions = append(whereConditions, likeClause)
+		}
+
+		// Use aggregateFunc to name the result column
+		resultColumnName := strings.ToLower(aggregateFunc)
+		query := fmt.Sprintf("SELECT %s AS %s FROM %s", aggregateExpr, resultColumnName, CurrentTable)
+		if len(whereConditions) > 0 {
+			query += " WHERE " + strings.Join(whereConditions, " AND ")
+		}
+
+		// DEBUG: Print the final query and values for troubleshooting
+		log.Printf("[DEBUG] %s query: %s\n", aggregateFunc, query)
+		log.Printf("[DEBUG] %s values: %#v\n", aggregateFunc, values)
+
+		// Execute aggregate query
+		row := db.QueryRow(query, values...)
+		var result any
+		if err := row.Scan(&result); err != nil {
+			return err
+		}
+		// Convert []byte to string for string columns
+		if b, ok := result.([]byte); ok {
+			result = string(b)
+		}
+
+		if useJsonOutput {
+			fmt.Printf("%s: %s\n", aggregateFunc, ColorJSON(map[string]any{resultColumnName: result}))
+		} else {
+			fmt.Println()
+			fmt.Printf("| %-10s |", resultColumnName)
+			fmt.Println("+-----------+")
+			fmt.Printf("| %-10v |", result)
+			fmt.Println("+-----------+")
 			fmt.Printf("\n1 row in set\n")
 		}
 		return nil
